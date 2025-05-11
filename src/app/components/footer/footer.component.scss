@@ -1,0 +1,21 @@
+.c-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    @media (min-width: 768px) {
+        flex-direction: row;
+        justify-content: space-evenly;
+    }
+
+    &__content1 {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        @media (min-width: 768px) {
+            flex-direction: row;
+            gap: .625rem;
+        }
+    }
+}
