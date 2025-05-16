@@ -1,15 +1,23 @@
 body {
-    font-family:'Trebuchet MS', Courier, Verdana, 'Century Gothic', 'Candara', 'Georgia', Arial, 'Tahoma', 'Garamond', 'Comic Sans MS';
+    font-family: 'Trebuchet MS', Courier, Verdana, 'Century Gothic', 'Candara', 'Georgia', Arial, 'Tahoma', 'Garamond', 'Comic Sans MS';
 }
 
-H1, H2{
-    font-family:'Harrington', 'Centaur', 'Comic Sans MS';
+H1,
+H2 {
+    font-family: 'Harrington', 'Centaur', 'Comic Sans MS';
 }
 
-H3, H4, H5, H6{
-    font-family:'Centaur', 'Comic Sans MS';
+H3,
+H4,
+H5,
+H6 {
+    font-family: 'Centaur', 'Comic Sans MS';
 }
 
-.battle-fantasy-font{
-    font-family:'Centaur';
+button {
+    font-family: 'Century Gothic', monospace, 'Comic Sans MS';
+}
+
+.battle-fantasy-font {
+    font-family: 'Centaur';
 }

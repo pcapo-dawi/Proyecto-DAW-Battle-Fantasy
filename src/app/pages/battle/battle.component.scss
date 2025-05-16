@@ -1,0 +1,133 @@
+.p-battle {
+    &__container {
+
+        @media(min-width:900px) {
+            display: flex;
+            justify-content: space-evenly;
+        }
+
+        &__top {
+            &__battle-screen {
+                display: flex;
+                align-items: self-end;
+                background-image: url("/assets/images/backgrounds/main_1.png");
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-position: bottom;
+                min-height: 16.375rem;
+                width: 100%;
+
+                &--enemy {
+                    position: absolute;
+                    width: 16.5rem;
+                    transform: translateY(7%);
+
+                    @media(min-width: 400px) {
+                        width: 23.5rem;
+                    }
+
+                    @media(min-width: 500px) {
+                        width: 27.5rem;
+                    }
+
+                    @media(min-width: 600px) {
+                        width: 33.5rem;
+                    }
+
+                    @media(min-width: 800px) {
+                        width: 100%;
+                    }
+                }
+
+                &--player {
+                    transform: translateY(27%);
+                }
+            }
+        }
+
+        &__UI {
+
+            &__middle {
+                z-index: 99;
+
+                &__attack-button {
+                    background-color: #0026ff;
+                    color: white;
+                    padding: 10px;
+                    text-align: center;
+                    font-weight: bold;
+                    width: 100%;
+                    position: relative;
+
+                    &:active {
+                        background-color: #001a99;
+                        color: #ff0000;
+                        transition: background-color 0.1s, color 0.1s;
+                    }
+                }
+
+                &__ultimate-button {
+                    background-color: #ffbb00;
+                    padding: 10px;
+                    text-align: center;
+                    font-weight: bold;
+                    width: 100%;
+                    margin-bottom: 16px;
+                    position: relative;
+
+                    &:active {
+                        background-color: #cc9900;
+                        color: #ff0000;
+                        transition: background-color 0.1s, color 0.1s;
+                    }
+                }
+            }
+
+            &__player-abilities {
+                display: flex;
+                justify-content: center;
+
+                p:nth-child(odd) {
+                    font-size: small;
+
+                    @media(min-width: 900px) {
+                        font-size: medium;
+                    }
+                }
+
+                p:nth-child(even) {
+                    @media(min-width: 900px) {
+                        font-size: medium;
+                    }
+
+                    font-size: x-small;
+                }
+
+                h3 {
+                    @media(min-width: 900px) {
+                        font-size: larger;
+                    }
+                }
+
+                &__skills {
+                    &__grid {
+                        display: grid;
+                        grid-template-columns: repeat(2, 1fr);
+                        row-gap: .3125rem;
+                        column-gap: .3125rem;
+
+                        &__skill1__details,
+                        &__skill2__details,
+                        &__skill3__details {
+                            background-color: aquamarine;
+                        }
+
+                        &__unique-ability__details {
+                            background-color: aqua;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
