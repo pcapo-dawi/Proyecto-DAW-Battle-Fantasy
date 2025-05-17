@@ -1,8 +1,8 @@
 import express from 'express';
 import http from 'http';
 import { Server as SocketIO } from 'socket.io';
-import db from './services/db.js'; // Asegúrate que db.js también sea ES module o usa export default
-import initRaidSocket from './socket/raid.socket';
+import db from '../services/db.js'; // Asegúrate que db.js también sea ES module o usa export default
+//import initRaidSocket from './socket/raid.socket';
 
 const app = express();
 const server = http.createServer(app);
@@ -12,7 +12,7 @@ const io = new SocketIO(server, {
   }
 });
 
-initRaidSocket(io);
+//initRaidSocket(io);
 
 // Middleware para JSON
 app.use(express.json());
@@ -21,6 +21,21 @@ app.use(express.json());
 app.get('/api/players', async (req, res) => {
   const players = await db.getPlayers();
   res.json(players);
+});
+
+// Endpoint para comprobar la conexión a la base de datos
+app.get('/api/db-test', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT 1');
+    res.json({ success: true, message: 'Conexión exitosa a la base de datos', result: rows });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error de conexión a la base de datos', error: error.message });
+  }
+});
+
+// Ruta de inicio
+app.get('/', (req, res) => {
+  res.send('¡Backend de Battle Fantasy funcionando!');
 });
 
 // Ejemplo de evento Socket.IO
