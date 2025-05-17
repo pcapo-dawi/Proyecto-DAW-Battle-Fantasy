@@ -1,6 +1,6 @@
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Players } from '../../backend/models/players';
+import { Players } from '../../../../backend/models/players';
 import { MatCardModule } from '@angular/material/card';
 
 @Component({
@@ -17,13 +17,25 @@ export class BattleComponent {
   //   { id: 4, name: 'Player 4', hp: 400, attack: 40, defense: 40, experience: 400, level: 4, honors: 40, money: 400, job: 'Warrior', skill1Name: 'Shield Bash', skill1Description: 'Bashes with a shield', skill1Cooldown: 5, skill1LvlUnlock: 1, skill2Name: 'Sword Slash', skill2Description: 'Slashes with a sword', skill2Cooldown: 6, skill2LvlUnlock: 2, skill3Name: 'Battle Cry', skill3Description: 'Increases attack power', skill3Cooldown: 7, skill3LvlUnlock: 3, uniqueAbilityName: 'Charge', uniqueAbilityDescription: 'Charges at an enemy', uniqueAbilityCooldown: 10, lider: false }
 
   @ViewChild('normalAttackVideo') normalAttackVideo!: ElementRef<HTMLVideoElement>;
+  @ViewChild('attackEnemyVideo') attackEnemyVideo!: ElementRef<HTMLVideoElement>;
 
+  canAttack = true;
+  canUseSkill1 = true;
+  canUseSkill2 = true;
+  canUseSkill3 = true;
+  canUseUniqueAbility = true;
   showIdle = true;
   showEnemyIdle = true;
+  showEnemyAttack = false;
+  showPlayerDamaged = false;
 
   attack(): void {
+    if (!this.canAttack) {
+      return;
+    }
+    this.canAttack = false;
     this.showIdle = false;
-    this.showEnemyIdle = false;
+    this.showEnemyIdle = false; // Enemigo recibe daño
     setTimeout(() => {
       if (this.normalAttackVideo && this.normalAttackVideo.nativeElement) {
         const video = this.normalAttackVideo.nativeElement;
@@ -37,5 +49,28 @@ export class BattleComponent {
     video.hidden = true;
     this.showIdle = true;
     this.showEnemyIdle = true;
+
+    setTimeout(() => {
+      this.showEnemyIdle = false;
+      this.showEnemyAttack = true;
+      this.showPlayerDamaged = true; // Aquí puedes mostrar el daño al jugador
+      setTimeout(() => {
+        if (this.attackEnemyVideo && this.attackEnemyVideo.nativeElement) {
+          const enemyVideo = this.attackEnemyVideo.nativeElement;
+          enemyVideo.currentTime = 0;
+          enemyVideo.play();
+        }
+      });
+    }, 500);
+  }
+
+  onEnemyAttackEnded(video: HTMLVideoElement): void {
+    video.hidden = true;
+    this.showEnemyAttack = false;
+    this.showEnemyIdle = true;
+    setTimeout(() => {
+      this.showPlayerDamaged = false; // Volver a idle después del daño
+      this.canAttack = true; // Habilitar el siguiente turno del jugador
+    }); // Ajusta el tiempo según la duración del video de daño
   }
 }
