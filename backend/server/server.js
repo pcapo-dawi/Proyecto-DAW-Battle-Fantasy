@@ -33,6 +33,16 @@ app.get('/api/db-test', async (req, res) => {
   }
 });
 
+// Nueva ruta para obtener misiones
+app.get('/api/missions', async (req, res) => {
+  try {
+    const missions = await db.getMissions();
+    res.json(missions);
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al obtener misiones', error: error.message });
+  }
+});
+
 // Ruta de inicio
 app.get('/', (req, res) => {
   res.send('¡Backend de Battle Fantasy funcionando!');

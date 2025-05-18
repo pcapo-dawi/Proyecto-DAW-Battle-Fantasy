@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Raids } from '../../backend/models/raids';
+import { Raids } from '../../../../backend/models/raids';
 import { MatCardModule } from '@angular/material/card';
 
 @Component({

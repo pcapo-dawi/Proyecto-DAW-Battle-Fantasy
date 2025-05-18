@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Raids } from '../../backend/models/raids';
+import { Raids } from '../../../../backend/models/raids';
 import { RaidsComponent } from '../../components/raids/raids.component';
 
 @Component({

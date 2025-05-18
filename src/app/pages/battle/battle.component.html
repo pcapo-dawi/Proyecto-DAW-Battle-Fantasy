@@ -54,33 +54,31 @@
             </div>
             <div class="p-battle__container__top__battle-screen">
                 <div class="p-battle__container__top__battle-screen--enemy">
-                    <video *ngIf="showEnemyIdle" src="\assets\animations\idle\gbfap_1747344727489.webm"
-                        type="video/webm" autoplay muted loop id="player-idle-video">Your browser doesn't suport webm
+                    <video *ngIf="showEnemyIdle" src="\assets\animations\enemies\idle\1.webm" type="video/webm" autoplay
+                        muted loop id="player-idle-video">Your browser doesn't suport webm
                         videos</video>
                     <video *ngIf="!showIdle && !showEnemyAttack" #damagedEnemyVideo
-                        src="\assets\animations\damaged\gbfap_1747345087072.webm" type="video/webm" autoplay muted
-                        loop>Your
+                        src="\assets\animations\enemies\damaged\1.webm" type="video/webm" autoplay muted loop>Your
                         browser doesn't suport webm
                         videos</video>
-                    <video *ngIf="showEnemyAttack" #attackEnemyVideo
-                        src="\assets\animations\attack\gbfap_1747344964731.webm" type="video/webm" autoplay muted
-                        (ended)="onEnemyAttackEnded(attackEnemyVideo)">Your
+                    <video *ngIf="showEnemyAttack" #attackEnemyVideo src="\assets\animations\enemies\attack\1.webm"
+                        type="video/webm" autoplay muted (ended)="onEnemyAttackEnded(attackEnemyVideo)">Your
                         browser doesn't suport webm
                         videos</video>
                 </div>
                 <div class="p-battle__container__top__battle-screen--player">
-                    <video *ngIf="showIdle && !showPlayerDamaged" src="\assets\animations\idle\gbfap_1747308608136.webm"
+                    <video *ngIf="showIdle && !showPlayerDamaged" src="\assets\animations\jobs\idle\1.webm"
                         type="video/webm" autoplay muted loop id="player-idle-video">Your browser doesn't
                         suport webm
                         videos</video>
                     <video *ngIf="!showIdle && !showPlayerDamaged" #normalAttackVideo
-                        src="\assets\animations\attack\gbfap_1747308608136.webm" type="video/webm" autoplay muted
+                        src="\assets\animations\jobs\attack\1.webm" type="video/webm" autoplay muted
                         (ended)="onAttackVideoEnded(normalAttackVideo)">Your browser
                         doesn't
                         suport webm
                         videos</video>
-                    <video *ngIf="showPlayerDamaged" #damagedVideo
-                        src="\assets\animations\damaged\gbfap_1747309569993.webm" type="video/webm" autoplay muted>Your
+                    <video *ngIf="showPlayerDamaged" #damagedVideo src="\assets\animations\jobs\damaged\1.webm"
+                        type="video/webm" autoplay muted>Your
                         browser
                         doesn't
                         suport webm

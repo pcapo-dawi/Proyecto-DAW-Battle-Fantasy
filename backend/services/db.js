@@ -15,9 +15,16 @@ export async function getPlayers() {
     return rows;
 }
 
+// Nueva función para obtener misiones
+export async function getMissions() {
+    const [rows] = await pool.query('SELECT ID as id, Name as name, Description as description, Time as time, Reward as reward FROM Missions');
+    return rows;
+}
+
 export default {
     query: (...args) => pool.query(...args),
-    getPlayers
+    getPlayers,
+    getMissions
 };
 
 console.log('DB_USER:', process.env.DB_USER);
