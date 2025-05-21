@@ -1,10 +1,10 @@
-export interface Raids {
+import { Enemy } from "./enemy";
+
+export interface Mission {
     id: number;
-    missionId: number;
     name: string;
     description: string;
     time: number;
     reward: number;
-    totalPlayers: number;
-    lider: string;
+    enemy: Enemy;
 }

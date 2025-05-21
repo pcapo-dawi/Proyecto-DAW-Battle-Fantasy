@@ -1,0 +1,125 @@
+@media (min-width: 900px) {
+  .p-battle__container {
+    display: flex;
+    justify-content: space-evenly;
+  }
+}
+.p-battle__container__top__battle-screen {
+  display: flex;
+  align-items: self-end;
+  background-image: url("/assets/images/backgrounds/main_1.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: bottom;
+  min-height: 16.375rem;
+  width: 100%;
+}
+.p-battle__container__top__battle-screen--enemy {
+  position: absolute;
+  width: 16.5rem;
+  transform: translateY(7%);
+}
+@media (min-width: 400px) {
+  .p-battle__container__top__battle-screen--enemy {
+    width: 23.5rem;
+  }
+}
+@media (min-width: 500px) {
+  .p-battle__container__top__battle-screen--enemy {
+    width: 27.5rem;
+  }
+}
+@media (min-width: 600px) {
+  .p-battle__container__top__battle-screen--enemy {
+    width: 33.5rem;
+  }
+}
+@media (min-width: 800px) {
+  .p-battle__container__top__battle-screen--enemy {
+    width: 100%;
+  }
+}
+.p-battle__container__top__battle-screen--player {
+  transform: translateY(27%);
+}
+.p-battle__container__UI__middle {
+  z-index: 99;
+}
+.p-battle__container__UI__middle__attack-button {
+  background-color: #0026ff;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+  width: 100%;
+  position: relative;
+}
+.p-battle__container__UI__middle__attack-button:active {
+  background-color: #001a99;
+  color: #ff0000;
+  transition: background-color 0.1s, color 0.1s;
+}
+.p-battle__container__UI__middle__attack-button:disabled {
+  background-color: #001a99;
+  color: #ff0000;
+  cursor: not-allowed;
+  transition: background-color 0.1s, color 0.1s;
+}
+.p-battle__container__UI__middle__ultimate-button {
+  background-color: #ffbb00;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+  width: 100%;
+  margin-bottom: 16px;
+  position: relative;
+}
+.p-battle__container__UI__middle__ultimate-button:active {
+  background-color: #cc9900;
+  color: #ff0000;
+  transition: background-color 0.1s, color 0.1s;
+}
+.p-battle__container__UI__middle__ultimate-button:disabled {
+  background-color: #cc9900;
+  color: #ff0000;
+  cursor: not-allowed;
+  transition: background-color 0.1s, color 0.1s;
+}
+.p-battle__container__UI__player-abilities {
+  display: flex;
+  justify-content: center;
+}
+.p-battle__container__UI__player-abilities p:nth-child(odd) {
+  font-size: small;
+}
+@media (min-width: 900px) {
+  .p-battle__container__UI__player-abilities p:nth-child(odd) {
+    font-size: medium;
+  }
+}
+.p-battle__container__UI__player-abilities p:nth-child(even) {
+  font-size: x-small;
+}
+@media (min-width: 900px) {
+  .p-battle__container__UI__player-abilities p:nth-child(even) {
+    font-size: medium;
+  }
+}
+@media (min-width: 900px) {
+  .p-battle__container__UI__player-abilities h3 {
+    font-size: larger;
+  }
+}
+.p-battle__container__UI__player-abilities__skills__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  row-gap: 0.3125rem;
+  -moz-column-gap: 0.3125rem;
+       column-gap: 0.3125rem;
+}
+.p-battle__container__UI__player-abilities__skills__grid__skill1__details, .p-battle__container__UI__player-abilities__skills__grid__skill2__details, .p-battle__container__UI__player-abilities__skills__grid__skill3__details {
+  background-color: aquamarine;
+}
+.p-battle__container__UI__player-abilities__skills__grid__unique-ability__details {
+  background-color: aqua;
+}/*# sourceMappingURL=battle.component.css.map */

@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Players } from '../../../../backend/models/players';
+import { Player } from '../../../../backend/models/player';
 import { MatCardModule } from '@angular/material/card';
 
 @Component({
@@ -11,7 +11,7 @@ import { MatCardModule } from '@angular/material/card';
   styleUrl: './profile.component.scss'
 })
 export class ProfileComponent {
-  @Input() Players: Players =
+  @Input() Players: Player =
     { id: 2, name: 'Player 2', hp: 200, attack: 20, defense: 20, experience: 200, level: 2, honors: 20, money: 20, job: 'Mage', skill1Name: 'Fireball', skill1Description: 'Launches a fireball', skill1Cooldown: 5, skill1LvlUnlock: 1, skill2Name: 'Ice Spike', skill2Description: 'Launches an ice spike', skill2Cooldown: 6, skill2LvlUnlock: 2, skill3Name: 'Lightning Bolt', skill3Description: 'Launches a lightning bolt', skill3Cooldown: 7, skill3LvlUnlock: 3, uniqueAbilityName: 'Teleport', uniqueAbilityDescription: 'Teleports to a location', uniqueAbilityCooldown: 10, lider: false }
   //   { id: 3, name: 'Player 3', hp: 300, attack: 30, defense: 30, experience: 300, level: 3, honors: 30, money: 300, job: 'Archer', skill1Name: 'Arrow Rain', skill1Description: 'Launches a rain of arrows', skill1Cooldown: 5, skill1LvlUnlock: 1, skill2Name: 'Eagle Eye', skill2Description: 'Increases accuracy', skill2Cooldown: 6, skill2LvlUnlock: 2, skill3Name: 'Rapid Fire', skill3Description: 'Fires arrows rapidly', skill3Cooldown: 7, skill3LvlUnlock: 3, uniqueAbilityName: 'Camouflage', uniqueAbilityDescription: 'Becomes invisible', uniqueAbilityCooldown: 10, lider: false }
   //   { id: 4, name: 'Player 4', hp: 400, attack: 40, defense: 40, experience: 400, level: 4, honors: 40, money: 400, job: 'Warrior', skill1Name: 'Shield Bash', skill1Description: 'Bashes with a shield', skill1Cooldown: 5, skill1LvlUnlock: 1, skill2Name: 'Sword Slash', skill2Description: 'Slashes with a sword', skill2Cooldown: 6, skill2LvlUnlock: 2, skill3Name: 'Battle Cry', skill3Description: 'Increases attack power', skill3Cooldown: 7, skill3LvlUnlock: 3, uniqueAbilityName: 'Charge', uniqueAbilityDescription: 'Charges at an enemy', uniqueAbilityCooldown: 10, lider: false }

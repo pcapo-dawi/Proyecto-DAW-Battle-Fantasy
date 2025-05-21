@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Raids } from '../../../../backend/models/raids';
+import { Raid } from '../../../../backend/models/raid';
 import { MatCardModule } from '@angular/material/card';
 
 @Component({
@@ -11,6 +11,6 @@ import { MatCardModule } from '@angular/material/card';
   styleUrl: './raids.component.scss'
 })
 export class RaidsComponent {
-  @Input() Raids!: Raids;
+  @Input() Raid!: Raid;
 
 }
