@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
-import { BattleComponent } from './pages/battle/battle.component';
+import { LoginComponent } from './pages/login/login.component';
+import { RegisterComponent } from './pages/register/register.component';
 import { HomeComponent } from './pages/home/home.component';
 import { HomeHeaderComponent } from './components/home-header/home-header.component';
 import { ProfileComponent } from './pages/profile/profile.component';
@@ -7,12 +8,20 @@ import { MissionsListingComponent } from './pages/missions-listing/missions-list
 import { MissionsHeaderComponent } from './components/missions-header/missions-header.component';
 import { RaidsListingComponent } from './pages/raids-listing/raids-listing.component';
 import { RaidsHeaderComponent } from './components/raids-header/raids-header.component';
+import { BattleComponent } from './pages/battle/battle.component';
 
 export const routes: Routes = [
     {
-        //path: 'battle/:id',
-        //component: BattleComponent
-
+        path: 'login',
+        component: LoginComponent,
+        title: 'Login',
+    },
+    {
+        path: 'register',
+        component: RegisterComponent,
+        title: 'Register',
+    },
+    {
         path: '',
         component: HomeComponent,
         title: 'Home',
