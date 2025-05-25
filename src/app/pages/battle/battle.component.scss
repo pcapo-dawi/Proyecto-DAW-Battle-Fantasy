@@ -7,6 +7,17 @@
         }
 
         &__top {
+
+            &--enemy-hp {
+                background: rgb(196, 0, 0);
+                height: 10px;
+            }
+
+            &--enemy-ultimate {
+                background: rgb(217, 233, 0);
+                height: 10px;
+            }
+
             &__battle-screen {
                 display: flex;
                 align-items: self-end;

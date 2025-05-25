@@ -7,4 +7,5 @@ export interface Mission {
     time: number;
     reward: number;
     enemy: Enemy;
+    enemyId: number;
 }

@@ -5,6 +5,7 @@ import { Server as SocketIO } from 'socket.io';
 import db from '../services/db.js'; // Asegúrate que db.js también sea ES module o usa export default
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getMissionById } from '../services/db.js';
 
 //import initRaidSocket from './socket/raid.socket';
 
@@ -32,6 +33,36 @@ app.get('/api/players', async (req, res) => {
   res.json(players);
 });
 
+// Endpoint para obtener trabajos
+app.get('/api/jobs', async (req, res) => {
+  try {
+    const jobs = await db.getJobs();
+    res.json(jobs);
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al obtener jobs', error: error.message });
+  }
+});
+
+// Nuevo endpoint para obtener trabajos con aspectos
+app.get('/api/jobs-with-aspects', async (req, res) => {
+  try {
+    const jobs = await db.getJobsWithAspects();
+    res.json(jobs);
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al obtener jobs con aspectos', error: error.message });
+  }
+});
+
+// Nuevo endpoint para obtener jobs con solo los IDs de sus aspectos
+app.get('/api/jobs-aspect-ids', async (req, res) => {
+  try {
+    const jobs = await db.getJobsWithAspectIds(); // Esta función debe estar en db.js
+    res.json(jobs);
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al obtener jobs con aspectIds', error: error.message });
+  }
+});
+
 // Endpoint para comprobar la conexión a la base de datos
 app.get('/api/db-test', async (req, res) => {
   try {
@@ -53,20 +84,18 @@ app.get('/api/missions', async (req, res) => {
 });
 
 // Nuevo endpoint para obtener una misión con su enemigo
-/*app.get('/api/missions/:id', async (req, res) => {
+app.get('/api/missions/:id', async (req, res) => {
   try {
     const mission = await getMissionById(req.params.id);
-
     if (!mission) {
       return res.status(404).json({ message: 'Misión no encontrada' });
     }
-
     res.json(mission);
   } catch (error) {
-    console.error('Error al obtener la misión:', error.message);
+    console.error(error);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
-});*/
+});
 
 // Nueva ruta para obtener raids
 app.get('/api/raids', async (req, res) => {

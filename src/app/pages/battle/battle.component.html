@@ -1,25 +1,24 @@
 <div class="p-battle">
-    <p>{{ missionId }}</p>
     <div class="p-battle__container">
         <div class="p-battle__container__top">
             <div class="p-battle__container__top__message"></div>
-            <div class="p-battle__container__top__battle-screen--enemy-hp"
-                style="background: rgb(196, 0, 0); height: 10px;">
+            <div class="p-battle__container__top--enemy-hp">
             </div>
-            <div class="p-battle__container__top__battle-screen--enemy-ultimate"
-                style="background: rgb(217, 233, 0); height: 10px;">
+            <div class="p-battle__container__top--enemy-ultimate">
             </div>
             <div class="p-battle__container__top__battle-screen">
                 <div class="p-battle__container__top__battle-screen--enemy">
-                    <video *ngIf="showEnemyIdle" src="\assets\animations\enemies\idle\1.webm" type="video/webm" autoplay
-                        muted loop id="player-idle-video">Your browser doesn't suport webm
+                    <video *ngIf="showEnemyIdle" src="\assets\animations\enemies\idle\{{ missionData?.enemyId}}.webm"
+                        type="video/webm" autoplay muted loop id="player-idle-video">Your browser doesn't suport webm
                         videos</video>
                     <video *ngIf="!showIdle && !showEnemyAttack" #damagedEnemyVideo
-                        src="\assets\animations\enemies\damaged\1.webm" type="video/webm" autoplay muted loop>Your
+                        src="\assets\animations\enemies\damaged\{{ missionData?.enemyId}}.webm" type="video/webm"
+                        autoplay muted loop>Your
                         browser doesn't suport webm
                         videos</video>
-                    <video *ngIf="showEnemyAttack" #attackEnemyVideo src="\assets\animations\enemies\attack\1.webm"
-                        type="video/webm" autoplay muted (ended)="onEnemyAttackEnded(attackEnemyVideo)">Your
+                    <video *ngIf="showEnemyAttack" #attackEnemyVideo
+                        src="\assets\animations\enemies\attack\{{ missionData?.enemyId}}.webm" type="video/webm"
+                        autoplay muted (ended)="onEnemyAttackEnded(attackEnemyVideo)">Your
                         browser doesn't suport webm
                         videos</video>
                 </div>
