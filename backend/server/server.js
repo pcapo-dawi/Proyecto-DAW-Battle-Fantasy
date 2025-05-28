@@ -33,6 +33,18 @@ app.get('/api/players', async (req, res) => {
   res.json(players);
 });
 
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
+  // Aquí deberías validar el usuario en la base de datos
+  // Ejemplo simple:
+  const [rows] = await db.query('SELECT * FROM Players WHERE Email = ? AND Password = ?', [email, password]);
+  if (rows.length > 0) {
+    res.json({ success: true, player: rows[0] });
+  } else {
+    res.status(401).json({ success: false, message: 'Credenciales incorrectas' });
+  }
+});
+
 // Endpoint para obtener trabajos
 app.get('/api/jobs', async (req, res) => {
   try {

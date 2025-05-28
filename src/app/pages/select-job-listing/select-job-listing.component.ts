@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Jobs } from '../../../../backend/models/jobs';
 import { SelectJobComponent } from '../../components/select-job/select-job.component';
 import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-select-job-listing',
-  imports: [CommonModule, SelectJobComponent, HttpClientModule, RouterModule],
+  imports: [CommonModule, SelectJobComponent, RouterModule],
   standalone: true,
   templateUrl: './select-job-listing.component.html',
   styleUrl: './select-job-listing.component.scss'

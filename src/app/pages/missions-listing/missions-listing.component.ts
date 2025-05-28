@@ -1,14 +1,14 @@
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Mission } from '../../../../backend/models/mission';
 import { MissionsComponent } from '../../components/missions/missions.component';
 import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-missions-listing',
-  imports: [CommonModule, MissionsComponent, HttpClientModule, RouterModule],
+  imports: [CommonModule, MissionsComponent, RouterModule],
   standalone: true,
   templateUrl: './missions-listing.component.html',
   styleUrl: './missions-listing.component.scss'

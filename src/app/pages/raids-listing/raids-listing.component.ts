@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Raid } from '../../../../backend/models/raid';
 import { RaidsComponent } from '../../components/raids/raids.component';
 
 @Component({
   selector: 'app-raids-listing',
-  imports: [CommonModule, RaidsComponent, HttpClientModule],
+  imports: [CommonModule, RaidsComponent],
   standalone: true,
   templateUrl: './raids-listing.component.html',
   styleUrl: './raids-listing.component.scss'
