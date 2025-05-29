@@ -9,6 +9,7 @@ import { MissionsHeaderComponent } from './components/missions-header/missions-h
 import { RaidsListingComponent } from './pages/raids-listing/raids-listing.component';
 import { RaidsHeaderComponent } from './components/raids-header/raids-header.component';
 import { BattleComponent } from './pages/battle/battle.component';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
     {
@@ -25,40 +26,53 @@ export const routes: Routes = [
         path: '',
         component: HomeComponent,
         title: 'Home',
+        canActivate: [authGuard]
     },
     {
         path: '',
         component: HomeHeaderComponent,
-        outlet: 'header'
+        outlet: 'header',
+        canActivate: [authGuard]
     },
     {
         path: 'profile',
         component: ProfileComponent,
         title: 'Profile',
+        canActivate: [authGuard]
     },
     {
         path: 'missions',
         component: MissionsListingComponent,
         title: 'Missions',
+        canActivate: [authGuard]
     },
     {
         path: 'missions',
         component: MissionsHeaderComponent,
-        outlet: 'header'
+        outlet: 'header',
+        canActivate: [authGuard]
     },
     {
         path: 'raids',
         component: RaidsListingComponent,
         title: 'Raids',
+        canActivate: [authGuard]
     },
     {
         path: 'raids',
         component: RaidsHeaderComponent,
-        outlet: 'header'
+        outlet: 'header',
+        canActivate: [authGuard]
     },
     {
         path: 'battle/:id',
         component: BattleComponent,
         title: 'Battle',
+        canActivate: [authGuard]
+    },
+    {
+        path: '**',
+        redirectTo: '',
+        pathMatch: 'full',
     }
 ];

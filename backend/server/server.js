@@ -6,6 +6,8 @@ import db from '../services/db.js'; // Asegúrate que db.js también sea ES modu
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getMissionById } from '../services/db.js';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 
 //import initRaidSocket from './socket/raid.socket';
 
@@ -27,22 +29,67 @@ const io = new SocketIO(server, {
 // Middleware para JSON
 app.use(express.json());
 
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
+  const [rows] = await db.query('SELECT * FROM Players WHERE Email = ?', [email]);
+  if (rows.length > 0) {
+    const user = rows[0];
+    const match = await bcrypt.compare(password, user.Password);
+    if (match) {
+      const token = jwt.sign({ id: user.ID }, 'secreto_super_seguro');
+      res.json({ success: true, player: user, token }); // <-- devuelve el token aquí
+    } else {
+      res.status(401).json({ success: false, message: 'Credenciales incorrectas' });
+    }
+  } else {
+    res.status(401).json({ success: false, message: 'Credenciales incorrectas' });
+  }
+});
+
+//Haz registro de un nuevo jugador
+app.post('/api/register', async (req, res) => {
+  const { name, email, password } = req.body;
+  // Aquí deberías insertar el nuevo jugador en la base de datos
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const [result] = await db.query(
+      'INSERT INTO Players (Name, Email, Password) VALUES (?, ?, ?)',
+      [name, email, hashedPassword]
+    );
+    res.json({ success: true, playerId: result.insertId });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al registrar el jugador', error: error.message });
+  }
+});
+
+// Middleware para verificar el token
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, 'secreto_super_seguro', (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+}
+
+// Endpoint protegido
+app.get('/api/player/me', authenticateToken, async (req, res) => {
+  const userId = req.user.id;
+  const [rows] = await db.query('SELECT * FROM Players WHERE ID = ?', [userId]);
+  if (rows.length > 0) {
+    res.json({ success: true, player: rows[0] });
+  } else {
+    res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+  }
+});
+
 // Ejemplo de endpoint REST
 app.get('/api/players', async (req, res) => {
   const players = await db.getPlayers();
   res.json(players);
-});
-
-app.post('/api/login', async (req, res) => {
-  const { email, password } = req.body;
-  // Aquí deberías validar el usuario en la base de datos
-  // Ejemplo simple:
-  const [rows] = await db.query('SELECT * FROM Players WHERE Email = ? AND Password = ?', [email, password]);
-  if (rows.length > 0) {
-    res.json({ success: true, player: rows[0] });
-  } else {
-    res.status(401).json({ success: false, message: 'Credenciales incorrectas' });
-  }
 });
 
 // Endpoint para obtener trabajos
