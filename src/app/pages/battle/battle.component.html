@@ -23,18 +23,20 @@
                         videos</video>
                 </div>
                 <div class="p-battle__container__top__battle-screen--player">
-                    <video *ngIf="showIdle && !showPlayerDamaged" src="\assets\animations\jobs\idle\1.webm"
-                        type="video/webm" autoplay muted loop id="player-idle-video">Your browser doesn't
+                    <video *ngIf="showIdle && !showPlayerDamaged"
+                        src="\assets\animations\jobs\idle\{{ player?.ID_JobAspect }}.webm" type="video/webm" autoplay
+                        muted loop id="player-idle-video">Your browser doesn't
                         suport webm
                         videos</video>
                     <video *ngIf="!showIdle && !showPlayerDamaged" #normalAttackVideo
-                        src="\assets\animations\jobs\attack\1.webm" type="video/webm" autoplay muted
-                        (ended)="onAttackVideoEnded(normalAttackVideo)">Your browser
+                        src="\assets\animations\jobs\attack\{{ player?.ID_JobAspect }}.webm" type="video/webm" autoplay
+                        muted (ended)="onAttackVideoEnded(normalAttackVideo)">Your browser
                         doesn't
                         suport webm
                         videos</video>
-                    <video *ngIf="showPlayerDamaged" #damagedVideo src="\assets\animations\jobs\damaged\1.webm"
-                        type="video/webm" autoplay muted>Your
+                    <video *ngIf="showPlayerDamaged" #damagedVideo
+                        src="\assets\animations\jobs\damaged\{{ player?.ID_JobAspect }}.webm" type="video/webm" autoplay
+                        muted>Your
                         browser
                         doesn't
                         suport webm

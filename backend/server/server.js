@@ -49,18 +49,36 @@ app.post('/api/login', async (req, res) => {
 //Haz registro de un nuevo jugador
 app.post('/api/register', async (req, res) => {
   const { name, email, password } = req.body;
-  // Aquí deberías insertar el nuevo jugador en la base de datos
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const [result] = await db.query(
       'INSERT INTO Players (Name, Email, Password) VALUES (?, ?, ?)',
       [name, email, hashedPassword]
     );
-    res.json({ success: true, playerId: result.insertId });
+    // Genera el token con el nuevo ID
+    const token = jwt.sign({ id: result.insertId }, 'secreto_super_seguro');
+    res.json({ success: true, playerId: result.insertId, token }); // <-- Devuelve el token aquí
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error al registrar el jugador', error: error.message });
   }
 });
+
+//Selecciona un job para un jugador
+app.post('/api/players/:id/assign-job', async (req, res) => {
+  const playerId = req.params.id;
+  const { jobId, jobAspectId } = req.body;
+  console.log('Asignando Job:', { playerId, jobId, jobAspectId }); // <-- Agrega este log
+  try {
+    await db.query(
+      'UPDATE Players SET ID_Job = ?, ID_JobAspect = ? WHERE ID = ?',
+      [jobId, jobAspectId, playerId]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al asignar job', error: error.message });
+  }
+});
+
 
 // Middleware para verificar el token
 function authenticateToken(req, res, next) {

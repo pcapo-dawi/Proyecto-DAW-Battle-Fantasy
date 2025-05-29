@@ -8,11 +8,18 @@ export const authGuard: CanActivateFn = (route, state) => {
   const token = cookieService.get('token');
   const url = state.url;
 
-  // Permitir acceso libre a login y register
-  if (url === '/login' || url === '/register') {
+  // Si el usuario ya está autenticado, no permitir acceso a login ni register
+  if ((url === '/login' || url === '/register') && token) {
+    router.navigate(['/home']);
+    return false;
+  }
+
+  // Permitir acceso libre a login y register si NO hay token
+  if ((url === '/login' || url === '/register') && !token) {
     return true;
   }
 
+  // Para el resto de rutas, exigir token
   if (token) {
     return true;
   } else {

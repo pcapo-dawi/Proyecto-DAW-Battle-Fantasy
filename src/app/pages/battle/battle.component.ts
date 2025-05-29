@@ -5,6 +5,7 @@ import { Mission } from '../../../../backend/models/mission';
 import { MatCardModule } from '@angular/material/card';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { PlayersService } from '../../players/players.service'; // Ajusta el path si es necesario
 
 @Component({
   selector: 'app-battle',
@@ -27,6 +28,9 @@ export class BattleComponent implements OnInit {
 
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
+  private playersService = inject(PlayersService);
+
+  player: any; // Añade esta propiedad
 
   ngOnInit() {
     this.route.params.subscribe(params => {
@@ -38,6 +42,11 @@ export class BattleComponent implements OnInit {
             this.missionData = data;
             // Aquí puedes usar los datos de la misión
           });
+      }
+    });
+    this.playersService.getPlayerLogged().subscribe({
+      next: (data) => {
+        this.player = data.player;
       }
     });
   }

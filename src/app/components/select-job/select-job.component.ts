@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Jobs } from '../../../../backend/models/jobs';
 import { JobAspect } from '../../../../backend/models/job-aspect';
 import { CommonModule } from '@angular/common';
@@ -13,9 +13,9 @@ import { RouterModule } from '@angular/router';
 })
 export class SelectJobComponent {
   @Input() job!: Jobs;
-  @Input() jobAspect!: JobAspect;
+  @Output() selectAspect = new EventEmitter<number>();
 
-  ngOnInit() {
-    console.log(this.job);
+  selectJobAspect(aspectId: number) {
+    this.selectAspect.emit(aspectId);
   }
 }

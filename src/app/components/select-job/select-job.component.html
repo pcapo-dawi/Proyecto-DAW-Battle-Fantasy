@@ -14,7 +14,9 @@
         <p class="c-jobs-listing__content--text">{{job.Description}}</p>
     </mat-card-content>
     <mat-card-actions align="end" class="c-jobs-listing__actions">
-        <button mat-button class="c-jobs-listing__actions--button">A</button>
-        <button mat-button class="c-jobs-listing__actions--button">B</button>
+        <button mat-button class="c-jobs-listing__actions--button"
+            (click)="selectJobAspect(job.aspectIds[0])">A</button>
+        <button mat-button class="c-jobs-listing__actions--button"
+            (click)="selectJobAspect(job.aspectIds[1])">B</button>
     </mat-card-actions>
 </mat-card>

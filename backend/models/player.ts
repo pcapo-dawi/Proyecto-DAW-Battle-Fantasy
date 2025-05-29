@@ -25,4 +25,5 @@ export interface Player {
     uniqueAbilityDescription: string;
     uniqueAbilityCooldown: number;
     lider: boolean;
+    ID_JobAspect?: number;
 }

@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
+import { SelectJobListingComponent } from './pages/select-job-listing/select-job-listing.component';
 import { HomeComponent } from './pages/home/home.component';
 import { HomeHeaderComponent } from './components/home-header/home-header.component';
 import { ProfileComponent } from './pages/profile/profile.component';
@@ -9,7 +10,8 @@ import { MissionsHeaderComponent } from './components/missions-header/missions-h
 import { RaidsListingComponent } from './pages/raids-listing/raids-listing.component';
 import { RaidsHeaderComponent } from './components/raids-header/raids-header.component';
 import { BattleComponent } from './pages/battle/battle.component';
-import { authGuard } from './guards/auth.guard';
+import { authGuard } from './guards/auth/auth.guard';
+import { jobSelectGuard } from './guards/job-select.guard';
 
 export const routes: Routes = [
     {
@@ -21,6 +23,12 @@ export const routes: Routes = [
         path: 'register',
         component: RegisterComponent,
         title: 'Register',
+    },
+    {
+        path: 'select-job',
+        component: SelectJobListingComponent,
+        title: 'Select Job',
+        canActivate: [authGuard, jobSelectGuard]
     },
     {
         path: '',

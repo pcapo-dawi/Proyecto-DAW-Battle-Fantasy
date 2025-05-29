@@ -16,10 +16,9 @@ import { Router } from '@angular/router';
 })
 export class RegisterComponent {
 
+  public username!: string;
   public email!: string;
   public password!: string;
-  public confirmPassword!: string;//Quitar esto y guardar el nombre de usuario
-  public passwordError: boolean = false;
   constructor(
     public playersService: PlayersService,
     private cookieService: CookieService,
@@ -27,12 +26,11 @@ export class RegisterComponent {
   ) { }
 
   register() {
-    // Here you would typically send the email and password to your backend for registration
-    const user = { email: this.email, password: this.password };
+    const user = { name: this.username, email: this.email, password: this.password };
     this.playersService.register(user).subscribe((data) => {
+      console.log('Respuesta del backend:', data);
       this.playersService.setToken(data.token);
-      this.router.navigate(['/login']); // Redirect to home or another page after successful login
-      // Optionally, redirect to login or another page after successful registration
+      this.router.navigate(['/select-job']);
     });
   }
 

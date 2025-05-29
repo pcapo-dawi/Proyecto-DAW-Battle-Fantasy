@@ -20,10 +20,18 @@ export class PlayersService {
 
   setToken(token: string) {
     this.cookies.set('token', token);
+    console.log('Token guardado:', token);
   }
 
   getToken(): string {
     return this.cookies.get('token');
+  }
+
+  assignJob(playerId: number, jobId: number, jobAspectId: number) {
+    return this.http.post(`http://localhost:3000/api/players/${playerId}/assign-job`, {
+      jobId,
+      jobAspectId
+    });
   }
 
   getPlayerLogged(): Observable<any> {
