@@ -379,3 +379,23 @@ app.get('/api/active-missions/by-player/:playerId', async (req, res) => {
     res.json({ activeMission: null });
   }
 });
+
+app.get('/api/enemies/:id', async (req, res) => {
+  const enemyId = req.params.id;
+  const [rows] = await db.query('SELECT * FROM Enemies WHERE ID = ?', [enemyId]);
+  if (rows.length > 0) {
+    res.json(rows[0]);
+  } else {
+    res.status(404).json({ error: 'Enemy not found' });
+  }
+});
+
+app.delete('/api/players/:id', async (req, res) => {
+  const playerId = req.params.id;
+  try {
+    await db.query('DELETE FROM Players WHERE ID = ?', [playerId]);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al borrar el jugador', error: error.message });
+  }
+});

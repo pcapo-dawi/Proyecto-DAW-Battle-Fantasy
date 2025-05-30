@@ -85,6 +85,12 @@
                     }
                 }
 
+                &__hp--bar {
+                    background-color: green;
+                    height: .625rem;
+                    transition: width 0.3s;
+                }
+
                 &__ultimate-button {
                     background-color: #ffbb00;
                     padding: 10px;

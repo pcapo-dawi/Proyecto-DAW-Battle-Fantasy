@@ -3,31 +3,36 @@
         <div class="p-battle__container__top">
             <div class="p-battle__container__top__message"></div>
             <span style="margin-left: 12px; font-weight: bold;">
-                {{ enemyCurrentHP }} / {{ enemyInitialHP }} HP ({{ ((enemyCurrentHP / enemyInitialHP) * 100) |
+                {{ enemyCurrentHP }} / {{ enemyMaxHP }} HP ({{ ((enemyCurrentHP / enemyMaxHP) * 100) |
                 number:'1.0-0' }}%)
             </span>
             <div *ngIf="enemyInitialHP > 0" class="enemy-hp-bar-container">
-                <div class="p-battle__container__top--enemy-hp"
-                    [style.width.%]="(enemyCurrentHP / enemyInitialHP) * 100">
+                <div class="p-battle__container__top--enemy-hp" [style.width.%]="(enemyCurrentHP / enemyMaxHP) * 100">
                 </div>
             </div>
             <div class="p-battle__container__top--enemy-ultimate">
             </div>
             <div class="p-battle__container__top__battle-screen">
                 <div class="p-battle__container__top__battle-screen--enemy">
-                    <video *ngIf="showEnemyIdle" src="\assets\animations\enemies\idle\{{ missionData?.enemyId}}.webm"
-                        type="video/webm" autoplay muted loop id="player-idle-video">Your browser doesn't suport webm
+                    <video *ngIf="showEnemyIdle && enemyCurrentHP > 0"
+                        src="\assets\animations\enemies\idle\{{ missionData?.enemyId}}.webm" type="video/webm" autoplay
+                        muted loop id="player-idle-video">Your browser doesn't suport webm
                         videos</video>
-                    <video *ngIf="!showIdle && !showEnemyAttack" #damagedEnemyVideo
+                    <video *ngIf="!showIdle && !showEnemyAttack && enemyCurrentHP > 0" #damagedEnemyVideo
                         src="\assets\animations\enemies\damaged\{{ missionData?.enemyId}}.webm" type="video/webm"
                         autoplay muted loop>Your
                         browser doesn't suport webm
                         videos</video>
-                    <video *ngIf="showEnemyAttack" #attackEnemyVideo
+                    <video *ngIf="showEnemyAttack && enemyCurrentHP > 0" #attackEnemyVideo
                         src="\assets\animations\enemies\attack\{{ missionData?.enemyId}}.webm" type="video/webm"
                         autoplay muted (ended)="onEnemyAttackEnded(attackEnemyVideo)">Your
                         browser doesn't suport webm
                         videos</video>
+                    <video *ngIf="enemyCurrentHP <= 0" #deadEnemyVideo
+                        src="\assets\animations\enemies\dead\{{ missionData?.enemyId}}.webm" type="video/webm" autoplay
+                        muted (ended)="onEnemyDeadEnded(deadEnemyVideo)">
+                        Your browser doesn't support webm videos
+                    </video>
                 </div>
                 <div class="p-battle__container__top__battle-screen--player">
                     <video *ngIf="showIdle && !showPlayerDamaged"
@@ -59,9 +64,9 @@
                     <h3 class="p-battle__container__UI__middle__hp--text">
                         HP {{ player?.HP }}
                     </h3>
-                    <div class="p-battle__container__UI__middle__hp--bar" style="background: green; height: 10px;">
-                        <div [style.width.%]="(player?.HP / player?.HP) * 100"
-                            style="background: green; height: 100%; transition: width 0.3s;">
+                    <div *ngIf="player?.HP > 0 && player?.InitialHP > 0" class="player-hp-bar-container">
+                        <div class="p-battle__container__UI__middle__hp--bar"
+                            [style.width.%]="(player?.HP / player?.InitialHP) * 100">
                         </div>
                     </div>
                 </div>
@@ -85,18 +90,18 @@
                                     </div>
                                     <div
                                         class="p-battle__container__UI__player-abilities__skills__grid__skill1__details__header__name">
-                                        <h3>{{Players.skill1Name}}</h3>
+                                        <h3>{{player.skill1Name}}</h3>
                                     </div>
                                 </mat-card-header>
                                 <mat-card-content
                                     class="p-battle__container__UI__player-abilities__skills__grid__skill1__details__content">
                                     <p
                                         class="p-battle__container__UI__player-abilities__skills__grid__skill1__details__content--description">
-                                        {{Players.skill1Description}}</p>
+                                        {{player.skill1Description}}</p>
                                     <p
                                         class="p-battle__container__UI__player-abilities__skills__grid__skill1__details__content--cooldown">
                                         Cooldown:
-                                        {{Players.skill1Cooldown}} turns</p>
+                                        {{player.skill1Cooldown}} turns</p>
                                     <mat-card-actions align="end"
                                         class="p-battle__container__UI__player-abilities__skills__grid__skill1__details__content--actions">
                                         <button
@@ -116,18 +121,18 @@
                                     </div>
                                     <div
                                         class="p-battle__container__UI__player-abilities__skills__grid__skill2__details__header__name">
-                                        <h3>{{Players.skill2Name}}</h3>
+                                        <h3>{{player.skill2Name}}</h3>
                                     </div>
                                 </mat-card-header>
                                 <mat-card-content
                                     class="p-battle__container__UI__player-abilities__skills__grid__skill2__details__content">
                                     <p
                                         class="p-battle__container__UI__player-abilities__skills__grid__skill2__details__content--description">
-                                        {{Players.skill2Description}}</p>
+                                        {{player.skill2Description}}</p>
                                     <p
                                         class="p-battle__container__UI__player-abilities__skills__grid__skill2__details__content--cooldown">
                                         Cooldown:
-                                        {{Players.skill2Cooldown}} turns</p>
+                                        {{player.skill2Cooldown}} turns</p>
                                     <mat-card-actions align="end"
                                         class="p-battle__container__UI__player-abilities__skills__grid__skill2__details__content--actions">
                                         <button
@@ -147,18 +152,18 @@
                                     </div>
                                     <div
                                         class="p-battle__container__UI__player-abilities__skills__grid__skill3__details__header__name">
-                                        <h3>{{Players.skill3Name}}</h3>
+                                        <h3>{{player.skill3Name}}</h3>
                                     </div>
                                 </mat-card-header>
                                 <mat-card-content
                                     class="p-battle__container__UI__player-abilities__skills__grid__skill3__details__content">
                                     <p
                                         class="p-battle__container__UI__player-abilities__skills__grid__skill3__details__content--description">
-                                        {{Players.skill3Description}}</p>
+                                        {{player.skill3Description}}</p>
                                     <p
                                         class="p-battle__container__UI__player-abilities__skills__grid__skill3__details__content--cooldown">
                                         Cooldown:
-                                        {{Players.skill3Cooldown}} turns</p>
+                                        {{player.skill3Cooldown}} turns</p>
                                     <mat-card-actions align="end"
                                         class="p-battle__container__UI__player-abilities__skills__grid__skill3__details__content--actions">
                                         <button
@@ -179,18 +184,18 @@
                                     </div>
                                     <div
                                         class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details__header__name">
-                                        <h3>{{Players.uniqueAbilityName}}</h3>
+                                        <h3>{{player.uniqueAbilityName}}</h3>
                                     </div>
                                 </mat-card-header>
                                 <mat-card-content
                                     class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details__content">
                                     <p
                                         class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details--description">
-                                        {{Players.uniqueAbilityDescription}}</p>
+                                        {{player.uniqueAbilityDescription}}</p>
                                     <p
                                         class="p-battle__container__UI__player-abilities__skills__grid__unique-ability--cooldown">
                                         Cooldown:
-                                        {{Players.uniqueAbilityCooldown}} turns</p>
+                                        {{player.uniqueAbilityCooldown}} turns</p>
                                     <mat-card-actions align="end"
                                         class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details__content--actions">
                                         <button

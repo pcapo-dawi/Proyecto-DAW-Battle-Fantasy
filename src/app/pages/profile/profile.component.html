@@ -1,23 +1,19 @@
 <div class="p-profile">
     <div class="p-profile__player-data">
         <div class="p-profile__player-data__image">
-            <img class="p-profile__player-data__image--img" src="../../../assets/images/classes/Bea_sr.webp"
-                alt="En todo esto poner lo mismo que en el home">
+            <img class="p-profile__player-data__image--img"
+                src="../../../assets/images/classes/{{ player.ID_JobAspect}}.png" alt="Character job">
         </div>
 
         <div class="p-profile__player-data__text">
             <h3 class="p-profile__player-data__text--name">Name: </h3>
-            <p>{{Players.name}}</p>
+            <p>{{player.name}}</p>
             <h3 class="p-profile__player-data__text--job">Job: </h3>
-            <p>{{Players.job}}</p>
+            <p>{{player.job}}</p>
             <h3 class="p-profile__player-data__text--level">Level: </h3>
-            <p>{{Players.level}}</p>
+            <p>{{player.level}}</p>
             <h3 class="p-profile__player-data__text--exp">Total Exp: </h3>
-            <p>{{Players.experience}}</p>
-            <h3 class="p-profile__player-data__text--nextLvl">Next Lvl in: </h3>
-            <p>400</p>
-            <h3 class="p-profile__player-data--money">Money: </h3>
-            <p>{{Players.money}} GoldMoney</p>
+            <p>{{player.experience}}</p>
         </div>
     </div>
     <div class="p-profile__player-abilities">
@@ -31,15 +27,15 @@
                                 class="p-profile__player-abilities__skills__grid__skill1__details__header__image">
                             </div>
                             <div class="p-profile__player-abilities__skills__grid__skill1__details__header__name">
-                                <h3>{{Players.skill1Name}}</h3>
+                                <h3>{{player.skill1Name}}</h3>
                             </div>
                         </mat-card-header>
                         <mat-card-content class="p-profile__player-abilities__skills__grid__skill1__details__content">
                             <p class="p-profile__player-abilities__skills__grid__skill1__details__content--description">
-                                {{Players.skill1Description}}</p>
+                                {{player.skill1Description}}</p>
                             <p class="p-profile__player-abilities__skills__grid__skill1__details__content--cooldown">
                                 Cooldown:
-                                {{Players.skill1Cooldown}} turns</p>
+                                {{player.skill1Cooldown}} turns</p>
                         </mat-card-content>
                     </mat-card>
                 </div>
@@ -50,18 +46,18 @@
                                 class="p-profile__player-abilities__skills__grid__skill2__details__header__image">
                             </div>
                             <div class="p-profile__player-abilities__skills__grid__skill2__details__header__name">
-                                <h3>{{Players.skill2Name}}</h3>
+                                <h3>{{player.skill2Name}}</h3>
                             </div>
                         </mat-card-header>
                         <mat-card-content class="p-profile__player-abilities__skills__grid__skill2__details__content">
                             <p class="p-profile__player-abilities__skills__grid__skill2__details__content--description">
-                                {{Players.skill2Description}}</p>
+                                {{player.skill2Description}}</p>
                             <p class="p-profile__player-abilities__skills__grid__skill2__details__content--cooldown">
                                 Cooldown:
-                                {{Players.skill2Cooldown}} turns</p>
+                                {{player.skill2Cooldown}} turns</p>
                             <p class="p-profile__player-abilities__skills__grid__skill2__details__content--lvlUnlock">
                                 Required Lvl:
-                                {{Players.skill2LvlUnlock}}
+                                {{player.skill2LvlUnlock}}
                             </p>
                         </mat-card-content>
                     </mat-card>
@@ -73,18 +69,18 @@
                                 class="p-profile__player-abilities__skills__grid__skill3__details__header__image">
                             </div>
                             <div class="p-profile__player-abilities__skills__grid__skill3__details__header__name">
-                                <h3>{{Players.skill3Name}}</h3>
+                                <h3>{{player.skill3Name}}</h3>
                             </div>
                         </mat-card-header>
                         <mat-card-content class="p-profile__player-abilities__skills__grid__skill3__details__content">
                             <p class="p-profile__player-abilities__skills__grid__skill3__details__content--description">
-                                {{Players.skill3Description}}</p>
+                                {{player.skill3Description}}</p>
                             <p class="p-profile__player-abilities__skills__grid__skill3__details__content--cooldown">
                                 Cooldown:
-                                {{Players.skill3Cooldown}} turns</p>
+                                {{player.skill3Cooldown}} turns</p>
                             <p class="p-profile__player-abilities__skills__grid__skill3__details__content--lvlUnlock">
                                 Required Lvl:
-                                {{Players.skill3LvlUnlock}}
+                                {{player.skill3LvlUnlock}}
                             </p>
                         </mat-card-content>
                     </mat-card>
@@ -101,20 +97,20 @@
                             class="p-profile__player-abilities__unique-ability__grid__details__header__image">
                         </div>
                         <div class="p-profile__player-abilities__unique-ability__grid__details__header__name">
-                            <h3>{{Players.uniqueAbilityName}}</h3>
+                            <h3>{{player.uniqueAbilityName}}</h3>
                         </div>
                     </mat-card-header>
                     <mat-card-content class="p-profile__player-abilities__unique-ability__grid__details__content">
                         <p class="p-profile__player-abilities__unique-ability__grid__details--description">
-                            {{Players.uniqueAbilityDescription}}</p>
+                            {{player.uniqueAbilityDescription}}</p>
                         <p class="p-profile__player-abilities__unique-ability__grid--cooldown">Cooldown:
-                            {{Players.uniqueAbilityCooldown}} turns</p>
+                            {{player.uniqueAbilityCooldown}} turns</p>
                     </mat-card-content>
                 </mat-card>
             </div>
         </div>
     </div>
     <div class="p-profile__delete-account">
-        <button class="p-profile__delete-account__button">Delete account</button>
+        <button class="p-profile__delete-account__button" (click)="deleteAccount()">Delete account</button>
     </div>
 </div>

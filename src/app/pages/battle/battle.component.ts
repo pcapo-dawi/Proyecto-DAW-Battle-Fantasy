@@ -15,10 +15,6 @@ import { PlayersService } from '../../players/players.service'; // Ajusta el pat
   styleUrl: './battle.component.scss'
 })
 export class BattleComponent implements OnInit {
-  @Input() Players: Player =
-    { id: 2, name: 'Player 2', hp: 200, attack: 20, defense: 20, experience: 200, level: 2, honors: 20, money: 20, job: 'Mage', skill1Name: 'Fireball', skill1Description: 'Launches a fireball', skill1Cooldown: 5, skill1LvlUnlock: 1, skill2Name: 'Ice Spike', skill2Description: 'Launches an ice spike', skill2Cooldown: 6, skill2LvlUnlock: 2, skill3Name: 'Lightning Bolt', skill3Description: 'Launches a lightning bolt', skill3Cooldown: 7, skill3LvlUnlock: 3, uniqueAbilityName: 'Rexcalibur', uniqueAbilityDescription: 'Powerfull wind attack', uniqueAbilityCooldown: 10, lider: false }
-  //   { id: 3, name: 'Player 3', hp: 300, attack: 30, defense: 30, experience: 300, level: 3, honors: 30, money: 300, job: 'Archer', skill1Name: 'Arrow Rain', skill1Description: 'Launches a rain of arrows', skill1Cooldown: 5, skill1LvlUnlock: 1, skill2Name: 'Eagle Eye', skill2Description: 'Increases accuracy', skill2Cooldown: 6, skill2LvlUnlock: 2, skill3Name: 'Rapid Fire', skill3Description: 'Fires arrows rapidly', skill3Cooldown: 7, skill3LvlUnlock: 3, uniqueAbilityName: 'Camouflage', uniqueAbilityDescription: 'Becomes invisible', uniqueAbilityCooldown: 10, lider: false }
-  //   { id: 4, name: 'Player 4', hp: 400, attack: 40, defense: 40, experience: 400, level: 4, honors: 40, money: 400, job: 'Warrior', skill1Name: 'Shield Bash', skill1Description: 'Bashes with a shield', skill1Cooldown: 5, skill1LvlUnlock: 1, skill2Name: 'Sword Slash', skill2Description: 'Slashes with a sword', skill2Cooldown: 6, skill2LvlUnlock: 2, skill3Name: 'Battle Cry', skill3Description: 'Increases attack power', skill3Cooldown: 7, skill3LvlUnlock: 3, uniqueAbilityName: 'Charge', uniqueAbilityDescription: 'Charges at an enemy', uniqueAbilityCooldown: 10, lider: false }
 
   //@Input() missionId: Mission[] = []
   //route: ActivatedRoute = inject(ActivatedRoute);
@@ -33,13 +29,15 @@ export class BattleComponent implements OnInit {
 
   player: any; // Añade esta propiedad
 
-  enemyInitialHP: number = 0;
+  enemyInitialHP: number = 0; // HP actual en la misión
   enemyCurrentHP: number = 0;
+  enemyMaxHP: number = 0;     // HP máximo original del enemigo
 
   ngOnInit() {
     this.playersService.getPlayerLogged().subscribe({
       next: (data) => {
         this.player = data.player;
+        this.player.InitialHP = data.player.HP;
         this.route.params.subscribe(params => {
           this.missionId = params['id'];
           if (this.missionId && this.player) {
@@ -47,6 +45,14 @@ export class BattleComponent implements OnInit {
             this.http.get<any>(`http://localhost:3000/api/missions/${this.missionId}`).subscribe({
               next: (mission) => {
                 this.missionData = mission;
+                // Obtener el HP máximo original del enemigo
+                if (mission.enemyId) {
+                  this.http.get<any>(`http://localhost:3000/api/enemies/${mission.enemyId}`).subscribe({
+                    next: (enemy) => {
+                      this.enemyMaxHP = enemy.HP; // O enemy.hp según el campo
+                    }
+                  });
+                }
               }
             });
 
@@ -56,10 +62,8 @@ export class BattleComponent implements OnInit {
                 if (result.activeMission && result.activeMission.ID_Mission == this.missionId) {
                   this.enemyInitialHP = result.activeMission.EnemyHP;
                   this.enemyCurrentHP = result.activeMission.EnemyHP;
-                  // ACTUALIZA LOS HP DEL PLAYER TAMBIÉN
                   this.player.HP = result.activeMission.PlayerHP;
                 } else {
-                  // Si no hay ActiveMission, crea una nueva
                   this.http.post<any>('http://localhost:3000/api/active-missions/start', {
                     playerId: this.player.ID,
                     missionId: this.missionId
@@ -67,10 +71,7 @@ export class BattleComponent implements OnInit {
                     next: (data) => {
                       this.enemyInitialHP = data.enemyHP;
                       this.enemyCurrentHP = data.enemyHP;
-                      this.player.HP = data.playerHP; // <-- también aquí
-                    },
-                    error: (err) => {
-                      // Si ya existe, puedes ignorar el error o manejarlo
+                      this.player.HP = data.playerHP;
                     }
                   });
                 }
@@ -180,5 +181,10 @@ export class BattleComponent implements OnInit {
       this.showPlayerDamaged = false; // Volver a idle después del daño
       this.canAttack = true; // Habilitar el siguiente turno del jugador
     }); // Ajusta el tiempo según la duración del video de daño
+  }
+
+  onEnemyDeadEnded(video: HTMLVideoElement): void {
+    // Redirige a la lista de misiones cuando termina la animación de muerte
+    this.router.navigate(['/missions']);
   }
 }

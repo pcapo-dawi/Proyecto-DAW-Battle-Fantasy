@@ -1,5 +1,5 @@
 export interface Player {
-    id: number;
+    ID: number;
     name: string;
     hp: number;
     attack: number;
