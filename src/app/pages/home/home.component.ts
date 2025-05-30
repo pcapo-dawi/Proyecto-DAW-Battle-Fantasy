@@ -2,7 +2,7 @@ import { Component, OnInit, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { PlayersService } from '../../players/players.service';
-import { Player } from '../../../../backend/models/player'; // Adjust the import path as necessary
+import { Player } from '../../../../backend/models/player';
 
 @Component({
   selector: 'app-home',
@@ -10,7 +10,7 @@ import { Player } from '../../../../backend/models/player'; // Adjust the import
   standalone: true,
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
-  providers: [PlayersService] // Ensure PlayersService is provided
+  providers: [PlayersService]
 })
 export class HomeComponent implements OnInit {
 
@@ -21,12 +21,11 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.playersService.getPlayerLogged().subscribe({
       next: (data) => {
-        this.player = data.player; // <-- Asigna aquí el player
+        this.player = data.player;
         console.log('Usuario autenticado:', data.player);
       },
       error: (err) => {
         if (err.status === 401) {
-          //alert('No autenticado');
         }
       }
     });

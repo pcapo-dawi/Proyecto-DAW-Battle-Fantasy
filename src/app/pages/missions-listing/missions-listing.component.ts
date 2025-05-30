@@ -34,7 +34,6 @@ export class MissionsListingComponent implements OnInit {
             }
           }
         });
-        // ...carga normal de misiones...
       }
     });
   }

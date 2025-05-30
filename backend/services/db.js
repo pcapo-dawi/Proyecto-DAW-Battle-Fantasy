@@ -141,5 +141,5 @@ export default {
     getJobsWithAspectIds,
     getMissionById,
     getMissions,
-    getRaids, // <-- agrega aquí también
+    getRaids,
 };

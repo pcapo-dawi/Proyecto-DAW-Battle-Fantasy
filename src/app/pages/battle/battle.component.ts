@@ -16,9 +16,6 @@ import { PlayersService } from '../../players/players.service'; // Ajusta el pat
 })
 export class BattleComponent implements OnInit {
 
-  //@Input() missionId: Mission[] = []
-  //route: ActivatedRoute = inject(ActivatedRoute);
-
   missionId: number | null = null;
   missionData?: Mission;
 
@@ -27,7 +24,7 @@ export class BattleComponent implements OnInit {
   private playersService = inject(PlayersService);
   private router = inject(Router);
 
-  player: any; // Añade esta propiedad
+  player: any;
 
   enemyInitialHP: number = 0; // HP actual en la misión
   enemyCurrentHP: number = 0;
@@ -41,7 +38,7 @@ export class BattleComponent implements OnInit {
         this.route.params.subscribe(params => {
           this.missionId = params['id'];
           if (this.missionId && this.player) {
-            // 1. Carga los datos de la misión y enemigo
+            // Carga los datos de la misión y enemigo
             this.http.get<any>(`http://localhost:3000/api/missions/${this.missionId}`).subscribe({
               next: (mission) => {
                 this.missionData = mission;
@@ -56,7 +53,7 @@ export class BattleComponent implements OnInit {
               }
             });
 
-            // 2. Consulta si ya hay una ActiveMission y carga los HP actuales
+            //Consulta si ya hay una ActiveMission y carga los HP actuales
             this.http.get<any>(`http://localhost:3000/api/active-missions/by-player/${this.player.ID}`).subscribe({
               next: (result) => {
                 if (result.activeMission && result.activeMission.ID_Mission == this.missionId) {
@@ -86,8 +83,6 @@ export class BattleComponent implements OnInit {
   constructor() {
     this.route.params.subscribe(params => {
       const missionId = params['id'];
-      // Aquí puedes hacer algo con el ID de la misión, como cargar datos específicos
-      console.log('Misión ID:', missionId);
     });
   }
 
@@ -104,7 +99,6 @@ export class BattleComponent implements OnInit {
   showEnemyAttack = false;
   showPlayerDamaged = false;
 
-  // Cuando ataques y recibas el nuevo HP del backend:
   updateEnemyHP(newHP: number) {
     this.enemyCurrentHP = newHP;
   }
@@ -119,7 +113,7 @@ export class BattleComponent implements OnInit {
 
     this.http.post<any>('http://localhost:3000/api/battle/attack', {
       playerId: this.player.ID,
-      missionId: this.missionId // <-- ahora envía missionId
+      missionId: this.missionId
     }).subscribe({
       next: (result) => {
         this.updateEnemyHP(result.enemyHP);
@@ -152,8 +146,6 @@ export class BattleComponent implements OnInit {
       }).subscribe({
         next: (result) => {
           this.player.HP = result.playerHP;
-          // Si la vida del jugador llega a 0, redirige a misiones
-          // Puedes mostrar el daño recibido: result.damage
         }
       });
       setTimeout(() => {
@@ -178,13 +170,12 @@ export class BattleComponent implements OnInit {
     }
 
     setTimeout(() => {
-      this.showPlayerDamaged = false; // Volver a idle después del daño
-      this.canAttack = true; // Habilitar el siguiente turno del jugador
-    }); // Ajusta el tiempo según la duración del video de daño
+      this.showPlayerDamaged = false;
+      this.canAttack = true;
+    });
   }
 
   onEnemyDeadEnded(video: HTMLVideoElement): void {
-    // Redirige a la lista de misiones cuando termina la animación de muerte
     this.router.navigate(['/missions']);
   }
 }

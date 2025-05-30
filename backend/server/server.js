@@ -2,14 +2,13 @@ import cors from 'cors';
 import express from 'express';
 import http from 'http';
 import { Server as SocketIO } from 'socket.io';
-import db from '../services/db.js'; // Asegúrate que db.js también sea ES module o usa export default
+import db from '../services/db.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getMissionById } from '../services/db.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
-//import initRaidSocket from './socket/raid.socket';
 
 const app = express();
 
@@ -23,8 +22,6 @@ const io = new SocketIO(server, {
     origin: '*',
   }
 });
-
-//initRaidSocket(io);
 
 // Middleware para JSON
 app.use(express.json());
@@ -57,7 +54,7 @@ app.post('/api/register', async (req, res) => {
     );
     // Genera el token con el nuevo ID
     const token = jwt.sign({ id: result.insertId }, 'secreto_super_seguro');
-    res.json({ success: true, playerId: result.insertId, token }); // <-- Devuelve el token aquí
+    res.json({ success: true, playerId: result.insertId, token });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error al registrar el jugador', error: error.message });
   }
@@ -187,15 +184,6 @@ app.get('/api/raids', async (req, res) => {
 app.get('/', (req, res) => {
   res.send('¡Backend de Battle Fantasy funcionando!');
 });
-
-// Servir archivos estáticos de Angular
-//const __dirname = path.dirname(fileURLToPath(import.meta.url));
-//app.use(express.static(path.join(__dirname, '../../dist/battle-fantasy')));
-
-// Redirigir todas las rutas no-API a index.html de Angular
-//app.get('*', (req, res) => {
-//  res.sendFile(path.join(__dirname, '../../dist/battle-fantasy/index.html'));
-//});
 
 // Ejemplo de evento Socket.IO
 io.on('connection', (socket) => {

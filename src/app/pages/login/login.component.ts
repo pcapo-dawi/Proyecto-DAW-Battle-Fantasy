@@ -22,14 +22,13 @@ export class LoginComponent {
     private cookieService: PlayersService,
     public router: Router
   ) {
-    // You can inject the PlayersService to manage player-related data
   }
 
   login() {
     const user = { email: this.email, password: this.password };
     this.playersService.login(user).subscribe((data) => {
       this.playersService.setToken(data.token);
-      this.router.navigate(['/home']); // Redirect to home or another page after successful login
+      this.router.navigate(['/home']);
     });
   }
 

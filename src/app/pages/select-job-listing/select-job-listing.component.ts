@@ -16,23 +16,16 @@ import { PlayersService } from '../../players/players.service'; // Asegúrate de
 })
 export class SelectJobListingComponent implements OnInit {
   public JobsList: Jobs[] = [];
-  public playerId: number = 0; // Obtén el ID del usuario logueado
+  public playerId: number = 0;
 
   constructor(
     private http: HttpClient,
     private router: Router,
     private playersService: PlayersService
   ) {
-    // You can choose which API endpoint to use, or combine them as needed.
-    // Example: Use the first endpoint
-    //this.http.get<Jobs[]>('http://localhost:3000/api/jobs')
-    //.subscribe(data => this.JobsList = data);
 
-    // If you want to use the second endpoint instead, comment the above and uncomment below:
     this.http.get<Jobs[]>('http://localhost:3000/api/jobs-aspect-ids')
       .subscribe(data => this.JobsList = data);
-
-    // Obtén el ID del usuario logueado (puedes guardarlo al hacer login)
     const player = JSON.parse(localStorage.getItem('player') || '{}');
     this.playerId = player.ID;
   }
@@ -49,7 +42,6 @@ export class SelectJobListingComponent implements OnInit {
     console.log('Enviando a backend:', this.playerId, job.ID, aspectId);
     this.playersService.assignJob(this.playerId, job.ID, aspectId).subscribe({
       next: () => {
-        // Redirige o muestra mensaje de éxito
         this.router.navigate(['/home']);
       },
       error: () => {
