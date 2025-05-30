@@ -50,17 +50,30 @@ export class BattleComponent implements OnInit {
               }
             });
 
-            // 2. Crea la misión activa
-            this.http.post<any>('http://localhost:3000/api/active-missions/start', {
-              playerId: this.player.ID,
-              missionId: this.missionId
-            }).subscribe({
-              next: (data) => {
-                this.enemyInitialHP = data.enemyHP;
-                this.enemyCurrentHP = data.enemyHP;
-              },
-              error: (err) => {
-                // Si ya existe, puedes ignorar el error o manejarlo
+            // 2. Consulta si ya hay una ActiveMission y carga los HP actuales
+            this.http.get<any>(`http://localhost:3000/api/active-missions/by-player/${this.player.ID}`).subscribe({
+              next: (result) => {
+                if (result.activeMission && result.activeMission.ID_Mission == this.missionId) {
+                  this.enemyInitialHP = result.activeMission.EnemyHP;
+                  this.enemyCurrentHP = result.activeMission.EnemyHP;
+                  // ACTUALIZA LOS HP DEL PLAYER TAMBIÉN
+                  this.player.HP = result.activeMission.PlayerHP;
+                } else {
+                  // Si no hay ActiveMission, crea una nueva
+                  this.http.post<any>('http://localhost:3000/api/active-missions/start', {
+                    playerId: this.player.ID,
+                    missionId: this.missionId
+                  }).subscribe({
+                    next: (data) => {
+                      this.enemyInitialHP = data.enemyHP;
+                      this.enemyCurrentHP = data.enemyHP;
+                      this.player.HP = data.playerHP; // <-- también aquí
+                    },
+                    error: (err) => {
+                      // Si ya existe, puedes ignorar el error o manejarlo
+                    }
+                  });
+                }
               }
             });
           }

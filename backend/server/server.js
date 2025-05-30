@@ -277,6 +277,20 @@ app.post('/api/battle/attack', async (req, res) => {
 // En /api/active-missions/start
 app.post('/api/active-missions/start', async (req, res) => {
   const { playerId, missionId } = req.body;
+
+  // Verifica si ya tiene una misión activa
+  const [activeRows] = await db.query(
+    'SELECT * FROM ActiveMissions WHERE ID_Player = ?',
+    [playerId]
+  );
+  if (activeRows.length > 0) {
+    // Ya tiene una misión activa, devuelve el ID de la misión activa
+    return res.status(400).json({
+      error: 'Ya tienes una misión activa',
+      activeMissionId: activeRows[0].ID_Mission
+    });
+  }
+
   // Obtén el HP del enemigo de la misión
   const [missionRows] = await db.query('SELECT ID_Enemy FROM Missions WHERE ID = ?', [missionId]);
   if (missionRows.length === 0) return res.status(404).json({ error: 'Mission not found' });
@@ -350,5 +364,18 @@ app.post('/api/battle/enemy-attack', async (req, res) => {
     res.json({ playerHP: newPlayerHP, damage });
   } catch (error) {
     res.status(500).json({ error: 'Error en el ataque del enemigo', details: error.message });
+  }
+});
+
+app.get('/api/active-missions/by-player/:playerId', async (req, res) => {
+  const playerId = req.params.playerId;
+  const [rows] = await db.query(
+    'SELECT * FROM ActiveMissions WHERE ID_Player = ?',
+    [playerId]
+  );
+  if (rows.length > 0) {
+    res.json({ activeMission: rows[0] });
+  } else {
+    res.json({ activeMission: null });
   }
 });
