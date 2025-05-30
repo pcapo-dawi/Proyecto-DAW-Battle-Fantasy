@@ -218,3 +218,137 @@ const PORT = 3000;
 server.listen(PORT, () => {
   console.log(`Servidor backend escuchando en http://localhost:${PORT}`);
 });
+
+// En /api/battle/attack
+app.post('/api/battle/attack', async (req, res) => {
+  const { playerId, missionId } = req.body;
+  try {
+    // Obtén la misión activa (sin Status)
+    const [activeRows] = await db.query(
+      'SELECT * FROM ActiveMissions WHERE ID_Player = ? AND ID_Mission = ?',
+      [playerId, missionId]
+    );
+    if (activeRows.length === 0) return res.status(404).json({ error: 'Active mission not found' });
+    let currentEnemyHP = activeRows[0].EnemyHP;
+
+    // Obtén los datos del jugador y job
+    const [playerRows] = await db.query('SELECT * FROM Players WHERE ID = ?', [playerId]);
+    if (playerRows.length === 0) return res.status(404).json({ error: 'Player not found' });
+    const player = playerRows[0];
+    const [jobRows] = await db.query('SELECT * FROM Jobs WHERE ID = ?', [player.ID_Job]);
+    if (jobRows.length === 0) return res.status(404).json({ error: 'Job not found' });
+    const job = jobRows[0];
+
+    // Obtén el enemigo de la misión
+    const [missionRows] = await db.query('SELECT ID_Enemy FROM Missions WHERE ID = ?', [missionId]);
+    const enemyId = missionRows[0].ID_Enemy;
+    const [enemyRows] = await db.query('SELECT * FROM Enemies WHERE ID = ?', [enemyId]);
+    if (enemyRows.length === 0) return res.status(404).json({ error: 'Enemy not found' });
+    const enemy = enemyRows[0];
+
+    // Calcula el daño
+    let damage = player.Attack + job.BaseAttack - enemy.Defense;
+    if (damage < 0) damage = 0;
+
+    // Resta el daño al HP actual
+    let newEnemyHP = currentEnemyHP - damage;
+    if (newEnemyHP < 0) newEnemyHP = 0;
+
+    // Actualiza el HP en ActiveMissions
+    await db.query(
+      'UPDATE ActiveMissions SET EnemyHP = ? WHERE ID_Player = ? AND ID_Mission = ?',
+      [newEnemyHP, playerId, missionId]
+    );
+
+    // Si el enemigo muere, borra la ActiveMission
+    if (newEnemyHP === 0) {
+      await db.query(
+        'DELETE FROM ActiveMissions WHERE ID_Player = ? AND ID_Mission = ?',
+        [playerId, missionId]
+      );
+    }
+
+    res.json({ enemyHP: newEnemyHP, damage });
+  } catch (error) {
+    res.status(500).json({ error: 'Error en el ataque', details: error.message });
+  }
+});
+
+// En /api/active-missions/start
+app.post('/api/active-missions/start', async (req, res) => {
+  const { playerId, missionId } = req.body;
+  // Obtén el HP del enemigo de la misión
+  const [missionRows] = await db.query('SELECT ID_Enemy FROM Missions WHERE ID = ?', [missionId]);
+  if (missionRows.length === 0) return res.status(404).json({ error: 'Mission not found' });
+  const enemyId = missionRows[0].ID_Enemy;
+  const [enemyRows] = await db.query('SELECT HP FROM Enemies WHERE ID = ?', [enemyId]);
+  if (enemyRows.length === 0) return res.status(404).json({ error: 'Enemy not found' });
+  const enemyHP = enemyRows[0].HP;
+
+  // Obtén el HP del jugador
+  const [playerRows] = await db.query('SELECT HP FROM Players WHERE ID = ?', [playerId]);
+  if (playerRows.length === 0) return res.status(404).json({ error: 'Player not found' });
+  const playerHP = playerRows[0].HP;
+
+  // Inserta la misión activa (agregando PlayerHP)
+  await db.query(
+    'INSERT INTO ActiveMissions (ID_Player, ID_Mission, StartTime, EnemyHP, PlayerHP) VALUES (?, ?, NOW(), ?, ?)',
+    [playerId, missionId, enemyHP, playerHP]
+  );
+  res.json({ success: true, enemyHP, playerHP });
+});
+
+// En /api/battle/enemy-attack
+app.post('/api/battle/enemy-attack', async (req, res) => {
+  const { playerId, missionId } = req.body;
+  try {
+    // Obtén la misión activa
+    const [activeRows] = await db.query(
+      'SELECT * FROM ActiveMissions WHERE ID_Player = ? AND ID_Mission = ?',
+      [playerId, missionId]
+    );
+    if (activeRows.length === 0) return res.status(404).json({ error: 'Active mission not found' });
+    let currentPlayerHP = activeRows[0].PlayerHP;
+
+    // Obtén los datos del jugador y job
+    const [playerRows] = await db.query('SELECT * FROM Players WHERE ID = ?', [playerId]);
+    if (playerRows.length === 0) return res.status(404).json({ error: 'Player not found' });
+    const player = playerRows[0];
+    const [jobRows] = await db.query('SELECT * FROM Jobs WHERE ID = ?', [player.ID_Job]);
+    if (jobRows.length === 0) return res.status(404).json({ error: 'Job not found' });
+    const job = jobRows[0];
+
+    // Obtén el enemigo de la misión
+    const [missionRows] = await db.query('SELECT ID_Enemy FROM Missions WHERE ID = ?', [missionId]);
+    const enemyId = missionRows[0].ID_Enemy;
+    const [enemyRows] = await db.query('SELECT * FROM Enemies WHERE ID = ?', [enemyId]);
+    if (enemyRows.length === 0) return res.status(404).json({ error: 'Enemy not found' });
+    const enemy = enemyRows[0];
+
+    // Calcula el daño recibido
+    let damage = enemy.Attack - (player.Defense + job.BaseDefense);
+    if (damage < 0) damage = 0;
+
+    // Resta el daño al HP actual del jugador
+    let newPlayerHP = currentPlayerHP - damage;
+    if (newPlayerHP < 0) newPlayerHP = 0;
+
+    // Actualiza el HP en ActiveMissions
+    await db.query(
+      'UPDATE ActiveMissions SET PlayerHP = ? WHERE ID_Player = ? AND ID_Mission = ?',
+      [newPlayerHP, playerId, missionId]
+    );
+
+    // Si el jugador muere, borra la ActiveMission
+    if (newPlayerHP === 0) {
+      await db.query(
+        'DELETE FROM ActiveMissions WHERE ID_Player = ? AND ID_Mission = ?',
+        [playerId, missionId]
+      );
+    }
+
+    res.json({ playerHP: newPlayerHP, damage });
+  } catch (error) {
+    res.status(500).json({ error: 'Error en el ataque del enemigo', details: error.message });
+  }
+});
