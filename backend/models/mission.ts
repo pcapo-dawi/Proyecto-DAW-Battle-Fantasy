@@ -8,4 +8,5 @@ export interface Mission {
     reward: number;
     enemy: Enemy;
     enemyId: number;
+    enemyHp: number;
 }

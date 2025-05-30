@@ -32,6 +32,9 @@ export class BattleComponent implements OnInit {
 
   player: any; // Añade esta propiedad
 
+  enemyInitialHP: number = 0;
+  enemyCurrentHP: number = 0;
+
   ngOnInit() {
     this.route.params.subscribe(params => {
       this.missionId = params['id'];
@@ -40,7 +43,8 @@ export class BattleComponent implements OnInit {
         this.http.get<Mission>(`http://localhost:3000/api/missions/${this.missionId}`)
           .subscribe(data => {
             this.missionData = data;
-            // Aquí puedes usar los datos de la misión
+            this.enemyInitialHP = data.enemyHp; // HP original del enemigo
+            this.enemyCurrentHP = data.enemyHp; // HP actual (inicia igual)
           });
       }
     });
@@ -72,18 +76,35 @@ export class BattleComponent implements OnInit {
   showEnemyAttack = false;
   showPlayerDamaged = false;
 
+  // Cuando ataques y recibas el nuevo HP del backend:
+  updateEnemyHP(newHP: number) {
+    this.enemyCurrentHP = newHP;
+  }
+
   attack(): void {
-    if (!this.canAttack) {
+    if (!this.canAttack || !this.player || !this.missionData) {
       return;
     }
     this.canAttack = false;
     this.showIdle = false;
-    this.showEnemyIdle = false; // Enemigo recibe daño
-    setTimeout(() => {
-      if (this.normalAttackVideo && this.normalAttackVideo.nativeElement) {
-        const video = this.normalAttackVideo.nativeElement;
-        video.currentTime = 0;
-        video.play();
+    this.showEnemyIdle = false;
+
+    this.http.post<any>('http://localhost:3000/api/battle/attack', {
+      playerId: this.player.ID,
+      enemyId: this.missionData.enemyId
+    }).subscribe({
+      next: (result) => {
+        this.updateEnemyHP(result.enemyHP); // Actualiza la vida del enemigo
+        setTimeout(() => {
+          if (this.normalAttackVideo && this.normalAttackVideo.nativeElement) {
+            const video = this.normalAttackVideo.nativeElement;
+            video.currentTime = 0;
+            video.play();
+          }
+        });
+      },
+      error: () => {
+        this.canAttack = true;
       }
     });
   }

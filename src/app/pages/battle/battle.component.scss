@@ -11,6 +11,7 @@
             &--enemy-hp {
                 background: rgb(196, 0, 0);
                 height: 10px;
+                transition: width 0.3s;
             }
 
             &--enemy-ultimate {

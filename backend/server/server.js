@@ -52,8 +52,8 @@ app.post('/api/register', async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const [result] = await db.query(
-      'INSERT INTO Players (Name, Email, Password) VALUES (?, ?, ?)',
-      [name, email, hashedPassword]
+      'INSERT INTO Players (Name, Email, Password, HP, Attack, Defense, Experience, Level) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [name, email, hashedPassword, 100, 1, 1, 0, 1]
     );
     // Genera el token con el nuevo ID
     const token = jwt.sign({ id: result.insertId }, 'secreto_super_seguro');
@@ -67,7 +67,6 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/players/:id/assign-job', async (req, res) => {
   const playerId = req.params.id;
   const { jobId, jobAspectId } = req.body;
-  console.log('Asignando Job:', { playerId, jobId, jobAspectId }); // <-- Agrega este log
   try {
     await db.query(
       'UPDATE Players SET ID_Job = ?, ID_JobAspect = ? WHERE ID = ?',

@@ -2,7 +2,14 @@
     <div class="p-battle__container">
         <div class="p-battle__container__top">
             <div class="p-battle__container__top__message"></div>
-            <div class="p-battle__container__top--enemy-hp">
+            <span style="margin-left: 12px; font-weight: bold;">
+                {{ enemyCurrentHP }} / {{ enemyInitialHP }} HP ({{ ((enemyCurrentHP / enemyInitialHP) * 100) |
+                number:'1.0-0' }}%)
+            </span>
+            <div *ngIf="enemyInitialHP > 0" class="enemy-hp-bar-container">
+                <div class="p-battle__container__top--enemy-hp"
+                    [style.width.%]="(enemyCurrentHP / enemyInitialHP) * 100">
+                </div>
             </div>
             <div class="p-battle__container__top--enemy-ultimate">
             </div>
@@ -49,8 +56,13 @@
                 <button class="p-battle__container__UI__middle__attack-button" (click)="attack()"
                     [disabled]="!canAttack" disabled>ATTACK</button>
                 <div class="p-battle__container__UI__middle__hp">
-                    <h3 class="p-battle__container__UI__middle__hp--text">HP {{Players.hp}}</h3>
+                    <h3 class="p-battle__container__UI__middle__hp--text">
+                        HP {{ player?.HP }}
+                    </h3>
                     <div class="p-battle__container__UI__middle__hp--bar" style="background: green; height: 10px;">
+                        <div [style.width.%]="(player?.HP / player?.HP) * 100"
+                            style="background: green; height: 100%; transition: width 0.3s;">
+                        </div>
                     </div>
                 </div>
                 <div class="p-battle__container__UI__middle__ultimate">
