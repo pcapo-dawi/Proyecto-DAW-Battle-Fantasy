@@ -217,13 +217,14 @@ server.listen(PORT, () => {
 app.post('/api/battle/attack', async (req, res) => {
   const { playerId, missionId } = req.body;
   try {
-    // Obtén la misión activa (sin Status)
+    // Obtén la misión activa
     const [activeRows] = await db.query(
       'SELECT * FROM ActiveMissions WHERE ID_Player = ? AND ID_Mission = ?',
       [playerId, missionId]
     );
     if (activeRows.length === 0) return res.status(404).json({ error: 'Active mission not found' });
     let currentEnemyHP = activeRows[0].EnemyHP;
+    let currentTurn = activeRows[0].Turn || 1;
 
     // Obtén los datos del jugador y job
     const [playerRows] = await db.query('SELECT * FROM Players WHERE ID = ?', [playerId]);
@@ -248,21 +249,23 @@ app.post('/api/battle/attack', async (req, res) => {
     let newEnemyHP = currentEnemyHP - damage;
     if (newEnemyHP < 0) newEnemyHP = 0;
 
-    // Actualiza el HP en ActiveMissions
-    await db.query(
-      'UPDATE ActiveMissions SET EnemyHP = ? WHERE ID_Player = ? AND ID_Mission = ?',
-      [newEnemyHP, playerId, missionId]
-    );
-
-    // Si el enemigo muere, borra la ActiveMission
-    if (newEnemyHP === 0) {
+    // Incrementa el turno solo si el enemigo no ha muerto
+    let newTurn = currentTurn;
+    if (newEnemyHP > 0) {
+      newTurn = currentTurn + 1;
+      await db.query(
+        'UPDATE ActiveMissions SET EnemyHP = ?, Turn = ? WHERE ID_Player = ? AND ID_Mission = ?',
+        [newEnemyHP, newTurn, playerId, missionId]
+      );
+    } else {
+      // Si el enemigo muere, borra la ActiveMission
       await db.query(
         'DELETE FROM ActiveMissions WHERE ID_Player = ? AND ID_Mission = ?',
         [playerId, missionId]
       );
     }
 
-    res.json({ enemyHP: newEnemyHP, damage });
+    res.json({ enemyHP: newEnemyHP, damage, turn: newTurn });
   } catch (error) {
     res.status(500).json({ error: 'Error en el ataque', details: error.message });
   }
@@ -300,10 +303,10 @@ app.post('/api/active-missions/start', async (req, res) => {
 
   // Inserta la misión activa (agregando PlayerHP)
   await db.query(
-    'INSERT INTO ActiveMissions (ID_Player, ID_Mission, StartTime, EnemyHP, PlayerHP) VALUES (?, ?, NOW(), ?, ?)',
-    [playerId, missionId, enemyHP, playerHP]
+    'INSERT INTO ActiveMissions (ID_Player, ID_Mission, StartTime, EnemyHP, PlayerHP, Turn) VALUES (?, ?, NOW(), ?, ?, ?)',
+    [playerId, missionId, enemyHP, playerHP, 1]
   );
-  res.json({ success: true, enemyHP, playerHP });
+  res.json({ success: true, enemyHP, playerHP, turn: 1 });
 });
 
 // En /api/battle/enemy-attack

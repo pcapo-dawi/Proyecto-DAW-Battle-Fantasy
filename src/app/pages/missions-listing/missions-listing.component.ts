@@ -30,8 +30,9 @@ export class MissionsListingComponent implements OnInit {
         this.http.get<any>(`http://localhost:3000/api/active-missions/by-player/${playerId}`).subscribe({
           next: (result) => {
             if (result.activeMission) {
-              // Redirige a la batalla de la misión activa
-              this.router.navigate(['/battle', result.activeMission.ID_Mission]);
+              this.router.navigate(
+                ['/', { outlets: { primary: ['battle', result.activeMission.ID_Mission], header: ['battle', result.activeMission.ID_Mission] } }]
+              );
             }
           }
         });

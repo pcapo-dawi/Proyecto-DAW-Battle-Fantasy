@@ -5,7 +5,8 @@ import { Mission } from '../../../../backend/models/mission';
 import { MatCardModule } from '@angular/material/card';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { PlayersService } from '../../players/players.service'; // Ajusta el path si es necesario
+import { PlayersService } from '../../players/players.service';
+import { BattleStateService } from '../../services/battle/battle-state-service.service';
 
 @Component({
   selector: 'app-battle',
@@ -18,6 +19,7 @@ export class BattleComponent implements OnInit {
 
   missionId: number | null = null;
   missionData?: Mission;
+  turn: number = 1;
 
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
@@ -26,9 +28,9 @@ export class BattleComponent implements OnInit {
 
   player: any;
 
-  enemyInitialHP: number = 0; // HP actual en la misión
+  enemyInitialHP: number = 0;
   enemyCurrentHP: number = 0;
-  enemyMaxHP: number = 0;     // HP máximo original del enemigo
+  enemyMaxHP: number = 0;
 
   ngOnInit() {
     this.playersService.getPlayerLogged().subscribe({
@@ -60,6 +62,8 @@ export class BattleComponent implements OnInit {
                   this.enemyInitialHP = result.activeMission.EnemyHP;
                   this.enemyCurrentHP = result.activeMission.EnemyHP;
                   this.player.HP = result.activeMission.PlayerHP;
+                  this.turn = result.activeMission.Turn || 1;
+                  this.battleState.setTurn(this.turn);
                 } else {
                   this.http.post<any>('http://localhost:3000/api/active-missions/start', {
                     playerId: this.player.ID,
@@ -69,6 +73,8 @@ export class BattleComponent implements OnInit {
                       this.enemyInitialHP = data.enemyHP;
                       this.enemyCurrentHP = data.enemyHP;
                       this.player.HP = data.playerHP;
+                      this.turn = data.turn || 1;
+                      this.battleState.setTurn(this.turn);
                     }
                   });
                 }
@@ -80,11 +86,9 @@ export class BattleComponent implements OnInit {
     });
   }
 
-  constructor() {
-    this.route.params.subscribe(params => {
-      const missionId = params['id'];
-    });
-  }
+  constructor(
+    private battleState: BattleStateService
+  ) { }
 
   @ViewChild('normalAttackVideo') normalAttackVideo!: ElementRef<HTMLVideoElement>;
   @ViewChild('attackEnemyVideo') attackEnemyVideo!: ElementRef<HTMLVideoElement>;
@@ -103,6 +107,11 @@ export class BattleComponent implements OnInit {
     this.enemyCurrentHP = newHP;
   }
 
+  updateTurn(newTurn: number) {
+    this.turn = newTurn;
+    this.battleState.setTurn(newTurn);
+  }
+
   attack(): void {
     if (!this.canAttack || !this.player || !this.missionData) {
       return;
@@ -117,6 +126,7 @@ export class BattleComponent implements OnInit {
     }).subscribe({
       next: (result) => {
         this.updateEnemyHP(result.enemyHP);
+        this.updateTurn(result.turn || this.turn + 1);
         setTimeout(() => {
           if (this.normalAttackVideo && this.normalAttackVideo.nativeElement) {
             const video = this.normalAttackVideo.nativeElement;
@@ -165,7 +175,7 @@ export class BattleComponent implements OnInit {
 
     // Redirige si la vida del jugador es 0 o menos
     if (this.player.HP <= 0) {
-      this.router.navigate(['/missions']);
+      this.router.navigate([{ outlets: { primary: 'missions', header: 'missions' } }]);
       return;
     }
 
@@ -176,6 +186,6 @@ export class BattleComponent implements OnInit {
   }
 
   onEnemyDeadEnded(video: HTMLVideoElement): void {
-    this.router.navigate(['/missions']);
+    this.router.navigate([{ outlets: { primary: 'missions', header: 'missions' } }]);
   }
 }
