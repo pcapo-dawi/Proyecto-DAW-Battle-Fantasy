@@ -2,6 +2,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding-top: 3.125rem;
 
     &__player-data {
         display: flex;
@@ -26,6 +27,10 @@
 
     &__player-abilities {
         margin-top: 100px;
+
+        @media(min-width: 450px) {
+            margin-top: 200px;
+        }
 
         @media (min-width: 768px) {
             display: flex;

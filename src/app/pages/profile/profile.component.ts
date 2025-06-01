@@ -38,7 +38,7 @@ export class ProfileComponent implements OnInit {
           // Borra las cookies relevantes
           this.cookieService.deleteAll();
           // Redirige al login
-          this.router.navigate(['/login']);
+          this.router.navigate([{ outlets: { primary: 'register', header: 'login' } }]);
         }
       });
     }

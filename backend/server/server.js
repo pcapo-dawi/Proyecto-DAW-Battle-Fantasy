@@ -92,7 +92,13 @@ function authenticateToken(req, res, next) {
 // Endpoint protegido
 app.get('/api/player/me', authenticateToken, async (req, res) => {
   const userId = req.user.id;
-  const [rows] = await db.query('SELECT * FROM Players WHERE ID = ?', [userId]);
+  // Haz un JOIN para obtener el nombre del Job
+  const [rows] = await db.query(`
+    SELECT p.*, j.Name as JobName
+    FROM Players p
+    LEFT JOIN Jobs j ON p.ID_Job = j.ID
+    WHERE p.ID = ?
+  `, [userId]);
   if (rows.length > 0) {
     res.json({ success: true, player: rows[0] });
   } else {

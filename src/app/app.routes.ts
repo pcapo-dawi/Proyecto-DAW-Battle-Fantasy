@@ -1,10 +1,12 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
+import { LoginHeaderComponent } from './components/login-header/login-header.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { SelectJobListingComponent } from './pages/select-job-listing/select-job-listing.component';
 import { HomeComponent } from './pages/home/home.component';
 import { HomeHeaderComponent } from './components/home-header/home-header.component';
 import { ProfileComponent } from './pages/profile/profile.component';
+import { ProfileHeaderComponent } from './components/profile-header/profile-header.component';
 import { MissionsListingComponent } from './pages/missions-listing/missions-listing.component';
 import { MissionsHeaderComponent } from './components/missions-header/missions-header.component';
 import { RaidsListingComponent } from './pages/raids-listing/raids-listing.component';
@@ -20,9 +22,19 @@ export const routes: Routes = [
         title: 'Login',
     },
     {
+        path: 'login',
+        component: LoginHeaderComponent,
+        outlet: 'header',
+    },
+    {
         path: 'register',
         component: RegisterComponent,
         title: 'Register',
+    },
+    {
+        path: 'register',
+        component: LoginHeaderComponent,
+        outlet: 'header',
     },
     {
         path: 'select-job',
@@ -46,6 +58,12 @@ export const routes: Routes = [
         path: 'profile',
         component: ProfileComponent,
         title: 'Profile',
+        canActivate: [authGuard]
+    },
+    {
+        path: 'profile',
+        component: ProfileHeaderComponent,
+        outlet: 'header',
         canActivate: [authGuard]
     },
     {

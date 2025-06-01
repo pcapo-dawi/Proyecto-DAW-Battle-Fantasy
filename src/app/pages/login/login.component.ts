@@ -28,7 +28,7 @@ export class LoginComponent {
     const user = { email: this.email, password: this.password };
     this.playersService.login(user).subscribe((data) => {
       this.playersService.setToken(data.token);
-      this.router.navigate(['/home']);
+      this.router.navigate(['/']);
     });
   }
 

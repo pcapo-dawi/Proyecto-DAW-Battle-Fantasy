@@ -1,14 +1,14 @@
 export interface Player {
     ID: number;
-    name: string;
+    Name: string;
     hp: number;
     attack: number;
     defense: number;
-    experience: number;
-    level: number;
+    Experience: number;
+    Level: number;
     honors: number;
     money: number;
-    job: string;
+    Job: string;
     skill1Name: string;
     skill1Description: string;
     skill1Cooldown: number;
@@ -26,4 +26,5 @@ export interface Player {
     uniqueAbilityCooldown: number;
     lider: boolean;
     ID_JobAspect?: number;
+    JobName: string;
 }

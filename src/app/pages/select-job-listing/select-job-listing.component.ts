@@ -42,7 +42,7 @@ export class SelectJobListingComponent implements OnInit {
     console.log('Enviando a backend:', this.playerId, job.ID, aspectId);
     this.playersService.assignJob(this.playerId, job.ID, aspectId).subscribe({
       next: () => {
-        this.router.navigate(['/home']);
+        this.router.navigate(['/']);
       },
       error: () => {
         alert('Error al asignar job');

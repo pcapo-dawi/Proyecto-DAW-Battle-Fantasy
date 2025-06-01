@@ -10,12 +10,17 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   // Si el usuario ya está autenticado, no permitir acceso a login ni register
   if ((url === '/login' || url === '/register') && token) {
-    router.navigate(['/home']);
+    router.navigate(['/']);
     return false;
   }
 
   // Permitir acceso libre a login y register si NO hay token
-  if ((url === '/login' || url === '/register') && !token) {
+  if (url === '/login' && !token) {
+    router.navigate([{ outlets: { primary: 'login', header: 'login' } }]);
+    return true;
+  }
+  if (url === '/register' && !token) {
+    router.navigate([{ outlets: { primary: 'register', header: 'login' } }]);
     return true;
   }
 
