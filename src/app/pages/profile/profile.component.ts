@@ -6,10 +6,12 @@ import { PlayersService } from '../../players/players.service';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
+import { RouterModule } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon'
 
 @Component({
   selector: 'app-profile',
-  imports: [CommonModule, MatCardModule],
+  imports: [CommonModule, MatCardModule, RouterModule, MatIconModule],
   standalone: true,
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'

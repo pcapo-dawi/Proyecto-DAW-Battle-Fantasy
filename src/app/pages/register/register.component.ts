@@ -6,10 +6,11 @@ import { NgModule } from '@angular/core';
 import { PlayersService } from '../../players/players.service';
 import { CookieService } from 'ngx-cookie-service';
 import { Router } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon'
 
 @Component({
   selector: 'app-register',
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, MatIconModule],
   standalone: true,
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'

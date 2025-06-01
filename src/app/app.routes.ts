@@ -12,6 +12,7 @@ import { MissionsHeaderComponent } from './components/missions-header/missions-h
 import { RaidsListingComponent } from './pages/raids-listing/raids-listing.component';
 import { RaidsHeaderComponent } from './components/raids-header/raids-header.component';
 import { BattleComponent } from './pages/battle/battle.component';
+import { BattleHeaderComponent } from './components/battle-header/battle-header.component';
 import { authGuard } from './guards/auth/auth.guard';
 import { jobSelectGuard } from './guards/job-select.guard';
 
@@ -94,6 +95,12 @@ export const routes: Routes = [
         path: 'battle/:id',
         component: BattleComponent,
         title: 'Battle',
+        canActivate: [authGuard]
+    },
+    {
+        path: 'battle/:id',
+        component: BattleHeaderComponent,
+        outlet: 'header',
         canActivate: [authGuard]
     },
     {

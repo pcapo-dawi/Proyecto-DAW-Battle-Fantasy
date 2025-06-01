@@ -3,8 +3,8 @@
         <div class="p-battle__container__top">
             <div class="p-battle__container__top__message"></div>
             <span style="margin-left: 12px; font-weight: bold;">
-                {{ enemyCurrentHP }} / {{ enemyMaxHP }} HP ({{ ((enemyCurrentHP / enemyMaxHP) * 100) |
-                number:'1.0-0' }}%)
+                {{ ((enemyCurrentHP / enemyMaxHP) * 100) |
+                number:'1.0-0' }}%
             </span>
             <div *ngIf="enemyInitialHP > 0" class="enemy-hp-bar-container">
                 <div class="p-battle__container__top--enemy-hp" [style.width.%]="(enemyCurrentHP / enemyMaxHP) * 100">

@@ -1,6 +1,19 @@
+<div class="toraids-container">
+    <div class="toraids-container__button">
+        <button class="toraids-container__button__raids"
+            [routerLink]="['/', { outlets: { primary: 'raids', header: 'raids' } }]">
+            Raids<mat-icon>keyboard_arrow_right</mat-icon></button>
+    </div>
+</div>
 <div class="p-missions">
     <div class="p-missions__grid">
         <app-missions *ngFor="let Missions of MissionsList" [Mission]="Missions"
             class="p-missions__grid--element"></app-missions>
+    </div>
+</div>
+<div class="p-register__login-container">
+    <div class="p-register__login-container__button">
+        <button class="p-register__login-container__button__register" [routerLink]="'/'">
+            <mat-icon>keyboard_arrow_left</mat-icon>Home</button>
     </div>
 </div>

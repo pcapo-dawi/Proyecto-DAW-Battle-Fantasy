@@ -1,5 +1,18 @@
+<div class="tomissions-container">
+    <div class="tomissions-container__button">
+        <button class="tomissions-container__button__missions"
+            [routerLink]="['/', { outlets: { primary: 'missions', header: 'missions' } }]">
+            Missions<mat-icon>keyboard_arrow_right</mat-icon></button>
+    </div>
+</div>
 <div class="p-raids">
     <div class="p-raids__grid">
         <app-raids *ngFor="let Raids of RaidsList" [Raid]="Raids"></app-raids>
+    </div>
+</div>
+<div class="p-register__login-container">
+    <div class="p-register__login-container__button">
+        <button class="p-register__login-container__button__register" [routerLink]="'/'">
+            <mat-icon>keyboard_arrow_left</mat-icon>Home</button>
     </div>
 </div>

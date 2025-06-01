@@ -7,6 +7,6 @@
     </mat-card-content>
     <mat-card-actions align="end" class="c-missions-listing__actions">
         <button mat-button class="c-missions-listing__actions--button"
-            [routerLink]="['/battle', Mission.id]">Accept</button>
+            [routerLink]="['/',{ outlets: { primary: ['battle', Mission.id], header: ['battle', Mission.id] } }]">Accept</button>
     </mat-card-actions>
 </mat-card>

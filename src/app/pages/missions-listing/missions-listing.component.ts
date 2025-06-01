@@ -6,10 +6,11 @@ import { Mission } from '../../../../backend/models/mission';
 import { MissionsComponent } from '../../components/missions/missions.component';
 import { RouterModule } from '@angular/router';
 import { PlayersService } from '../../players/players.service';
+import { MatIconModule } from '@angular/material/icon'
 
 @Component({
   selector: 'app-missions-listing',
-  imports: [CommonModule, MissionsComponent, RouterModule],
+  imports: [CommonModule, MissionsComponent, RouterModule, MatIconModule],
   standalone: true,
   templateUrl: './missions-listing.component.html',
   styleUrl: './missions-listing.component.scss'
