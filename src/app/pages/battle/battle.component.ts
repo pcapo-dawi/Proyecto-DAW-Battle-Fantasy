@@ -16,7 +16,6 @@ import { BattleStateService } from '../../services/battle/battle-state-service.s
   styleUrl: './battle.component.scss'
 })
 export class BattleComponent implements OnInit {
-
   missionId: number | null = null;
   missionData?: Mission;
   turn: number = 1;
@@ -32,6 +31,9 @@ export class BattleComponent implements OnInit {
   enemyCurrentHP: number = 0;
   enemyMaxHP: number = 0;
 
+  isRaidBattle: boolean = false;
+  activeRaidPlayer: any = null;
+
   ngOnInit() {
     this.playersService.getPlayerLogged().subscribe({
       next: (data) => {
@@ -40,46 +42,62 @@ export class BattleComponent implements OnInit {
         this.route.params.subscribe(params => {
           this.missionId = params['id'];
           if (this.missionId && this.player) {
-            // Carga los datos de la misión y enemigo
-            this.http.get<any>(`http://localhost:3000/api/missions/${this.missionId}`).subscribe({
-              next: (mission) => {
-                this.missionData = mission;
-                // Obtener el HP máximo original del enemigo
-                if (mission.enemyId) {
-                  this.http.get<any>(`http://localhost:3000/api/enemies/${mission.enemyId}`).subscribe({
-                    next: (enemy) => {
-                      this.enemyMaxHP = enemy.HP; // O enemy.hp según el campo
-                    }
-                  });
+            // Detecta si es raid o misión normal
+            this.http.get<any>(`http://localhost:3000/api/active-raid-player/by-player/${this.player.ID}`)
+              .subscribe({
+                next: (result) => {
+                  if (result.activeRaidPlayer && result.activeRaidPlayer.ID_ActiveRaid == this.missionId) {
+                    this.isRaidBattle = true;
+                    this.activeRaidPlayer = result.activeRaidPlayer;
+                    // Carga datos de la raid
+                    this.enemyInitialHP = result.activeRaidPlayer.EnemyHP;
+                    this.enemyCurrentHP = result.activeRaidPlayer.EnemyHP;
+                    this.enemyMaxHP = result.activeRaidPlayer.EnemyHP; // Si quieres mostrar barra completa
+                    this.player.HP = result.activeRaidPlayer.PlayerHP;
+                    this.turn = result.activeRaidPlayer.RaidTurn || 1;
+                    this.battleState.setTurn(this.turn);
+                  } else {
+                    this.isRaidBattle = false;
+                    // Carga datos de la misión y enemigo (como ya tienes)
+                    this.http.get<any>(`http://localhost:3000/api/missions/${this.missionId}`).subscribe({
+                      next: (mission) => {
+                        this.missionData = mission;
+                        if (mission.enemyId) {
+                          this.http.get<any>(`http://localhost:3000/api/enemies/${mission.enemyId}`).subscribe({
+                            next: (enemy) => {
+                              this.enemyMaxHP = enemy.HP;
+                            }
+                          });
+                        }
+                      }
+                    });
+                    this.http.get<any>(`http://localhost:3000/api/active-missions/by-player/${this.player.ID}`).subscribe({
+                      next: (result) => {
+                        if (result.activeMission && result.activeMission.ID_Mission == this.missionId) {
+                          this.enemyInitialHP = result.activeMission.EnemyHP;
+                          this.enemyCurrentHP = result.activeMission.EnemyHP;
+                          this.player.HP = result.activeMission.PlayerHP;
+                          this.turn = result.activeMission.Turn || 1;
+                          this.battleState.setTurn(this.turn);
+                        } else {
+                          this.http.post<any>('http://localhost:3000/api/active-missions/start', {
+                            playerId: this.player.ID,
+                            missionId: this.missionId
+                          }).subscribe({
+                            next: (data) => {
+                              this.enemyInitialHP = data.enemyHP;
+                              this.enemyCurrentHP = data.enemyHP;
+                              this.player.HP = data.playerHP;
+                              this.turn = data.turn || 1;
+                              this.battleState.setTurn(this.turn);
+                            }
+                          });
+                        }
+                      }
+                    });
+                  }
                 }
-              }
-            });
-
-            //Consulta si ya hay una ActiveMission y carga los HP actuales
-            this.http.get<any>(`http://localhost:3000/api/active-missions/by-player/${this.player.ID}`).subscribe({
-              next: (result) => {
-                if (result.activeMission && result.activeMission.ID_Mission == this.missionId) {
-                  this.enemyInitialHP = result.activeMission.EnemyHP;
-                  this.enemyCurrentHP = result.activeMission.EnemyHP;
-                  this.player.HP = result.activeMission.PlayerHP;
-                  this.turn = result.activeMission.Turn || 1;
-                  this.battleState.setTurn(this.turn);
-                } else {
-                  this.http.post<any>('http://localhost:3000/api/active-missions/start', {
-                    playerId: this.player.ID,
-                    missionId: this.missionId
-                  }).subscribe({
-                    next: (data) => {
-                      this.enemyInitialHP = data.enemyHP;
-                      this.enemyCurrentHP = data.enemyHP;
-                      this.player.HP = data.playerHP;
-                      this.turn = data.turn || 1;
-                      this.battleState.setTurn(this.turn);
-                    }
-                  });
-                }
-              }
-            });
+              });
           }
         });
       }
@@ -113,32 +131,54 @@ export class BattleComponent implements OnInit {
   }
 
   attack(): void {
-    if (!this.canAttack || !this.player || !this.missionData) {
-      return;
-    }
+    if (!this.canAttack || !this.player) return;
     this.canAttack = false;
     this.showIdle = false;
     this.showEnemyIdle = false;
 
-    this.http.post<any>('http://localhost:3000/api/battle/attack', {
-      playerId: this.player.ID,
-      missionId: this.missionId
-    }).subscribe({
-      next: (result) => {
-        this.updateEnemyHP(result.enemyHP);
-        this.updateTurn(result.turn || this.turn + 1);
-        setTimeout(() => {
-          if (this.normalAttackVideo && this.normalAttackVideo.nativeElement) {
-            const video = this.normalAttackVideo.nativeElement;
-            video.currentTime = 0;
-            video.play();
-          }
-        });
-      },
-      error: () => {
-        this.canAttack = true;
-      }
-    });
+    if (this.isRaidBattle) {
+      // Ataca en la raid
+      this.http.post<any>('http://localhost:3000/api/raid-battle/attack', {
+        playerId: this.player.ID,
+        activeRaidId: this.missionId
+      }).subscribe({
+        next: (result) => {
+          this.updateEnemyHP(result.enemyHP);
+          this.updateTurn(result.turn || this.turn + 1);
+          setTimeout(() => {
+            if (this.normalAttackVideo && this.normalAttackVideo.nativeElement) {
+              const video = this.normalAttackVideo.nativeElement;
+              video.currentTime = 0;
+              video.play();
+            }
+          });
+        },
+        error: () => {
+          this.canAttack = true;
+        }
+      });
+    } else {
+      // Ataca en misión normal
+      this.http.post<any>('http://localhost:3000/api/battle/attack', {
+        playerId: this.player.ID,
+        missionId: this.missionId
+      }).subscribe({
+        next: (result) => {
+          this.updateEnemyHP(result.enemyHP);
+          this.updateTurn(result.turn || this.turn + 1);
+          setTimeout(() => {
+            if (this.normalAttackVideo && this.normalAttackVideo.nativeElement) {
+              const video = this.normalAttackVideo.nativeElement;
+              video.currentTime = 0;
+              video.play();
+            }
+          });
+        },
+        error: () => {
+          this.canAttack = true;
+        }
+      });
+    }
   }
 
   onAttackVideoEnded(video: HTMLVideoElement): void {
@@ -149,15 +189,26 @@ export class BattleComponent implements OnInit {
     setTimeout(() => {
       this.showEnemyIdle = false;
       this.showEnemyAttack = true;
-      this.showPlayerDamaged = true; // Aquí puedes mostrar el daño al jugador
-      this.http.post<any>('http://localhost:3000/api/battle/enemy-attack', {
-        playerId: this.player.ID,
-        missionId: this.missionId
-      }).subscribe({
-        next: (result) => {
-          this.player.HP = result.playerHP;
-        }
-      });
+      this.showPlayerDamaged = true;
+      if (this.isRaidBattle) {
+        this.http.post<any>('http://localhost:3000/api/raid-battle/enemy-attack', {
+          playerId: this.player.ID,
+          activeRaidId: this.missionId
+        }).subscribe({
+          next: (result) => {
+            this.player.HP = result.playerHP;
+          }
+        });
+      } else {
+        this.http.post<any>('http://localhost:3000/api/battle/enemy-attack', {
+          playerId: this.player.ID,
+          missionId: this.missionId
+        }).subscribe({
+          next: (result) => {
+            this.player.HP = result.playerHP;
+          }
+        });
+      }
       setTimeout(() => {
         if (this.attackEnemyVideo && this.attackEnemyVideo.nativeElement) {
           const enemyVideo = this.attackEnemyVideo.nativeElement;
@@ -173,9 +224,12 @@ export class BattleComponent implements OnInit {
     this.showEnemyAttack = false;
     this.showEnemyIdle = true;
 
-    // Redirige si la vida del jugador es 0 o menos
     if (this.player.HP <= 0) {
-      this.router.navigate([{ outlets: { primary: 'missions', header: 'missions' } }]);
+      if (this.isRaidBattle) {
+        this.router.navigate([{ outlets: { primary: 'raids', header: 'raids' } }]);
+      } else {
+        this.router.navigate([{ outlets: { primary: 'missions', header: 'missions' } }]);
+      }
       return;
     }
 
@@ -186,6 +240,16 @@ export class BattleComponent implements OnInit {
   }
 
   onEnemyDeadEnded(video: HTMLVideoElement): void {
-    this.router.navigate([{ outlets: { primary: 'missions', header: 'missions' } }]);
+    if (this.isRaidBattle) {
+      // Llama al endpoint para borrar la raid
+      this.http.delete(`http://localhost:3000/api/raids/${this.missionId}/end`)
+        .subscribe({
+          next: () => {
+            this.router.navigate([{ outlets: { primary: 'raids', header: 'raids' } }]);
+          }
+        });
+    } else {
+      this.router.navigate([{ outlets: { primary: 'missions', header: 'missions' } }]);
+    }
   }
 }

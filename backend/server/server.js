@@ -366,14 +366,18 @@ app.post('/api/battle/enemy-attack', async (req, res) => {
 
 app.get('/api/active-missions/by-player/:playerId', async (req, res) => {
   const playerId = req.params.playerId;
+  // Unimos ActiveRaidPlayers con ActiveRaids para obtener EnemyHP y Turn global
   const [rows] = await db.query(
-    'SELECT * FROM ActiveMissions WHERE ID_Player = ?',
+    `SELECT arp.*, ar.EnemyHP, ar.Turn as RaidTurn
+     FROM ActiveRaidPlayers arp
+     JOIN ActiveRaids ar ON arp.ID_ActiveRaid = ar.ID
+     WHERE arp.ID_Player = ?`,
     [playerId]
   );
   if (rows.length > 0) {
-    res.json({ activeMission: rows[0] });
+    res.json({ activeRaidPlayer: rows[0] });
   } else {
-    res.json({ activeMission: null });
+    res.json({ activeRaidPlayer: null });
   }
 });
 
@@ -394,5 +398,285 @@ app.delete('/api/players/:id', async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error al borrar el jugador', error: error.message });
+  }
+});
+
+// Crear una nueva Raid a partir de una misión y registrar al jugador en ActiveRaids
+app.post('/api/raids/create', async (req, res) => {
+  const { missionId, playerId } = req.body;
+  try {
+    // 1. Crea la Raid si no existe para esa misión
+    const [existing] = await db.query('SELECT * FROM Raids WHERE ID_Mission = ?', [missionId]);
+    let raidId;
+    if (existing.length > 0) {
+      raidId = existing[0].ID;
+    } else {
+      const [result] = await db.query('INSERT INTO Raids (ID_Mission) VALUES (?)', [missionId]);
+      raidId = result.insertId;
+    }
+
+    // 2. Obtén el HP del enemigo y el tiempo de la misión
+    const [missionRows] = await db.query('SELECT ID_Enemy, Time FROM Missions WHERE ID = ?', [missionId]);
+    if (missionRows.length === 0) return res.status(404).json({ error: 'Mission not found' });
+    const enemyId = missionRows[0].ID_Enemy;
+    const time = missionRows[0].Time;
+    const [enemyRows] = await db.query('SELECT HP FROM Enemies WHERE ID = ?', [enemyId]);
+    if (enemyRows.length === 0) return res.status(404).json({ error: 'Enemy not found' });
+    const enemyHP = enemyRows[0].HP;
+
+    // 3. Obtén el HP del jugador
+    const [playerRows] = await db.query('SELECT HP FROM Players WHERE ID = ?', [playerId]);
+    if (playerRows.length === 0) return res.status(404).json({ error: 'Player not found' });
+    const playerHP = playerRows[0].HP;
+
+    // 4. Crea la entrada en ActiveRaids para el jugador (si no existe)
+    let activeRaidId;
+    const [activeRaidRows] = await db.query(
+      'SELECT * FROM ActiveRaids WHERE ID_Player = ? AND ID_Raid = ?',
+      [playerId, raidId]
+    );
+    if (activeRaidRows.length === 0) {
+      const [result] = await db.query(
+        'INSERT INTO ActiveRaids (ID_Player, ID_Raid, ID_Mission, StartTime, EnemyHP, PlayerHP, Turn) VALUES (?, ?, ?, NOW(), ?, ?, ?)',
+        [playerId, raidId, missionId, enemyHP, playerHP, 1]
+      );
+      activeRaidId = result.insertId;
+    } else {
+      activeRaidId = activeRaidRows[0].ID;
+    }
+
+    // 5. Inserta el jugador en ActiveRaidPlayers si no existe
+    const [activeRaidPlayerRows] = await db.query(
+      'SELECT * FROM ActiveRaidPlayers WHERE ID_ActiveRaid = ? AND ID_Player = ?',
+      [activeRaidId, playerId]
+    );
+    if (activeRaidPlayerRows.length === 0) {
+      await db.query(
+        'INSERT INTO ActiveRaidPlayers (ID_ActiveRaid, ID_Player, PlayerHP, Turn) VALUES (?, ?, ?, ?)',
+        [activeRaidId, playerId, playerHP, 1]
+      );
+    }
+
+    // Elimina la ActiveMission del jugador si existe
+    await db.query(
+      'DELETE FROM ActiveMissions WHERE ID_Player = ? AND ID_Mission = ?',
+      [playerId, missionId]
+    );
+
+    res.json({ success: true, raidId, activeRaidId, enemyHP, playerHP, time, turn: 1 });
+  } catch (error) {
+    console.error('Error al crear la raid:', error);
+    res.status(500).json({ success: false, message: 'Error al crear la raid', error: error.message });
+  }
+});
+
+// Unirse a una Raid existente
+app.post('/api/raids/join', async (req, res) => {
+  const { raidId, playerId } = req.body;
+  try {
+    // 1. Busca la entrada de ActiveRaids para esta raid (debe existir)
+    const [activeRaids] = await db.query(
+      'SELECT * FROM ActiveRaids WHERE ID_Raid = ?',
+      [raidId]
+    );
+    if (activeRaids.length === 0) {
+      return res.status(404).json({ error: 'No existe una instancia activa de esta raid.' });
+    }
+    // Usamos la primera ActiveRaid como referencia (todas comparten EnemyHP y Turn global)
+    const activeRaid = activeRaids[0];
+
+    // 2. Verifica si el jugador ya está en ActiveRaidPlayers
+    const [alreadyJoined] = await db.query(
+      'SELECT * FROM ActiveRaidPlayers WHERE ID_ActiveRaid = ? AND ID_Player = ?',
+      [activeRaid.ID, playerId]
+    );
+    if (alreadyJoined.length > 0) {
+      return res.json({ success: true, message: 'Ya estás unido a la raid.' });
+    }
+
+    // 3. Obtén el HP del jugador
+    const [playerRows] = await db.query('SELECT HP FROM Players WHERE ID = ?', [playerId]);
+    if (playerRows.length === 0) return res.status(404).json({ error: 'Player not found' });
+    const playerHP = playerRows[0].HP;
+
+    // 4. Inserta en ActiveRaidPlayers
+    await db.query(
+      'INSERT INTO ActiveRaidPlayers (ID_ActiveRaid, ID_Player, PlayerHP, Turn) VALUES (?, ?, ?, ?)',
+      [activeRaid.ID, playerId, playerHP, 1]
+    );
+
+    res.json({ success: true, message: 'Unido a la raid correctamente.' });
+  } catch (error) {
+    console.error('Error al unirse a la raid:', error);
+    res.status(500).json({ success: false, message: 'Error al unirse a la raid', error: error.message });
+  }
+});
+
+app.get('/api/active-raid-player/by-player/:playerId', async (req, res) => {
+  const playerId = req.params.playerId;
+  // Unimos ActiveRaidPlayers con ActiveRaids para obtener EnemyHP y Turn global
+  const [rows] = await db.query(
+    `SELECT arp.*, ar.EnemyHP, ar.Turn as RaidTurn
+     FROM ActiveRaidPlayers arp
+     JOIN ActiveRaids ar ON arp.ID_ActiveRaid = ar.ID
+     WHERE arp.ID_Player = ?`,
+    [playerId]
+  );
+  if (rows.length > 0) {
+    res.json({ activeRaidPlayer: rows[0] });
+  } else {
+    res.json({ activeRaidPlayer: null });
+  }
+});
+
+// Elimina una raid y todos sus datos relacionados
+app.delete('/api/raids/:raidId/end', async (req, res) => {
+  const raidId = req.params.raidId;
+  try {
+    // 1. Busca los IDs de ActiveRaids asociados a esta raid
+    const [activeRaids] = await db.query('SELECT ID FROM ActiveRaids WHERE ID_Raid = ?', [raidId]);
+    const activeRaidIds = activeRaids.map(r => r.ID);
+
+    // 2. Borra de ActiveRaidPlayers todos los jugadores de esos ActiveRaids
+    if (activeRaidIds.length > 0) {
+      await db.query(
+        `DELETE FROM ActiveRaidPlayers WHERE ID_ActiveRaid IN (${activeRaidIds.map(() => '?').join(',')})`,
+        activeRaidIds
+      );
+    }
+
+    // 3. Borra de ActiveRaids
+    await db.query('DELETE FROM ActiveRaids WHERE ID_Raid = ?', [raidId]);
+
+    // 4. Borra la Raid
+    await db.query('DELETE FROM Raids WHERE ID = ?', [raidId]);
+
+    res.json({ success: true, message: 'Raid eliminada correctamente.' });
+  } catch (error) {
+    console.error('Error al eliminar la raid:', error);
+    res.status(500).json({ success: false, message: 'Error al eliminar la raid', error: error.message });
+  }
+});
+
+// Ataque del jugador en una raid
+app.post('/api/raid-battle/attack', async (req, res) => {
+  const { playerId, activeRaidId } = req.body;
+  try {
+    // 1. Busca la instancia de ActiveRaids y ActiveRaidPlayers
+    const [activeRaidRows] = await db.query('SELECT * FROM ActiveRaids WHERE ID = ?', [activeRaidId]);
+    if (activeRaidRows.length === 0) return res.status(404).json({ error: 'Active raid not found' });
+    const activeRaid = activeRaidRows[0];
+
+    const [activeRaidPlayerRows] = await db.query('SELECT * FROM ActiveRaidPlayers WHERE ID_ActiveRaid = ? AND ID_Player = ?', [activeRaidId, playerId]);
+    if (activeRaidPlayerRows.length === 0) return res.status(404).json({ error: 'Active raid player not found' });
+
+    // 2. Obtén los datos del jugador y job
+    const [playerRows] = await db.query('SELECT * FROM Players WHERE ID = ?', [playerId]);
+    if (playerRows.length === 0) return res.status(404).json({ error: 'Player not found' });
+    const player = playerRows[0];
+    const [jobRows] = await db.query('SELECT * FROM Jobs WHERE ID = ?', [player.ID_Job]);
+    if (jobRows.length === 0) return res.status(404).json({ error: 'Job not found' });
+    const job = jobRows[0];
+
+    // 3. Obtén el enemigo de la raid (desde la misión asociada)
+    const [missionRows] = await db.query('SELECT ID_Enemy FROM Missions WHERE ID = ?', [activeRaid.ID_Mission]);
+    const enemyId = missionRows[0].ID_Enemy;
+    const [enemyRows] = await db.query('SELECT * FROM Enemies WHERE ID = ?', [enemyId]);
+    if (enemyRows.length === 0) return res.status(404).json({ error: 'Enemy not found' });
+    const enemy = enemyRows[0];
+
+    // 4. Calcula el daño
+    let damage = player.Attack + job.BaseAttack - enemy.Defense;
+    if (damage < 0) damage = 0;
+
+    // 5. Resta el daño al HP actual del enemigo (global para la raid)
+    let newEnemyHP = activeRaid.EnemyHP - damage;
+    if (newEnemyHP < 0) newEnemyHP = 0;
+
+    // 6. Incrementa el turno solo si el enemigo no ha muerto
+    let newTurn = activeRaid.Turn;
+    if (newEnemyHP > 0) {
+      newTurn = activeRaid.Turn + 1;
+      await db.query(
+        'UPDATE ActiveRaids SET EnemyHP = ?, Turn = ? WHERE ID = ?',
+        [newEnemyHP, newTurn, activeRaidId]
+      );
+      // También actualiza el turno del jugador en ActiveRaidPlayers
+      await db.query(
+        'UPDATE ActiveRaidPlayers SET Turn = ? WHERE ID_ActiveRaid = ? AND ID_Player = ?',
+        [newTurn, activeRaidId, playerId]
+      );
+    } else {
+      // Si el enemigo muere, borra la ActiveRaid y ActiveRaidPlayers de todos los jugadores
+      await db.query('DELETE FROM ActiveRaidPlayers WHERE ID_ActiveRaid = ?', [activeRaidId]);
+      await db.query('DELETE FROM ActiveRaids WHERE ID = ?', [activeRaidId]);
+      // (Opcional: podrías borrar la Raid si ya no quedan ActiveRaids)
+    }
+
+    res.json({ enemyHP: newEnemyHP, damage, turn: newTurn });
+  } catch (error) {
+    res.status(500).json({ error: 'Error en el ataque de raid', details: error.message });
+  }
+});
+
+// Ataque del enemigo a un jugador en una raid
+app.post('/api/raid-battle/enemy-attack', async (req, res) => {
+  const { playerId, activeRaidId } = req.body;
+  try {
+    // 1. Busca la instancia de ActiveRaids y ActiveRaidPlayers
+    const [activeRaidRows] = await db.query('SELECT * FROM ActiveRaids WHERE ID = ?', [activeRaidId]);
+    if (activeRaidRows.length === 0) return res.status(404).json({ error: 'Active raid not found' });
+    const activeRaid = activeRaidRows[0];
+
+    const [activeRaidPlayerRows] = await db.query('SELECT * FROM ActiveRaidPlayers WHERE ID_ActiveRaid = ? AND ID_Player = ?', [activeRaidId, playerId]);
+    if (activeRaidPlayerRows.length === 0) return res.status(404).json({ error: 'Active raid player not found' });
+    const activeRaidPlayer = activeRaidPlayerRows[0];
+
+    // 2. Obtén los datos del jugador y job
+    const [playerRows] = await db.query('SELECT * FROM Players WHERE ID = ?', [playerId]);
+    if (playerRows.length === 0) return res.status(404).json({ error: 'Player not found' });
+    const player = playerRows[0];
+    const [jobRows] = await db.query('SELECT * FROM Jobs WHERE ID = ?', [player.ID_Job]);
+    if (jobRows.length === 0) return res.status(404).json({ error: 'Job not found' });
+    const job = jobRows[0];
+
+    // 3. Obtén el enemigo de la raid (desde la misión asociada)
+    const [missionRows] = await db.query('SELECT ID_Enemy FROM Missions WHERE ID = ?', [activeRaid.ID_Mission]);
+    const enemyId = missionRows[0].ID_Enemy;
+    const [enemyRows] = await db.query('SELECT * FROM Enemies WHERE ID = ?', [enemyId]);
+    if (enemyRows.length === 0) return res.status(404).json({ error: 'Enemy not found' });
+    const enemy = enemyRows[0];
+
+    // 4. Calcula el daño recibido
+    let damage = enemy.Attack - (player.Defense + job.BaseDefense);
+    if (damage < 0) damage = 0;
+
+    // 5. Resta el daño al HP actual del jugador
+    let newPlayerHP = activeRaidPlayer.PlayerHP - damage;
+    if (newPlayerHP < 0) newPlayerHP = 0;
+
+    // 6. Incrementa el turno solo si el enemigo no ha muerto
+    let newTurn = activeRaid.Turn;
+    if (newEnemyHP > 0) {
+      newTurn = activeRaid.Turn + 1;
+      await db.query(
+        'UPDATE ActiveRaids SET EnemyHP = ?, Turn = ? WHERE ID = ?',
+        [newEnemyHP, newTurn, activeRaidId]
+      );
+      // También actualiza el turno del jugador en ActiveRaidPlayers
+      await db.query(
+        'UPDATE ActiveRaidPlayers SET Turn = ? WHERE ID_ActiveRaid = ? AND ID_Player = ?',
+        [newTurn, activeRaidId, playerId]
+      );
+    } else {
+      // Si el enemigo muere, borra la ActiveRaid y ActiveRaidPlayers de todos los jugadores
+      await db.query('DELETE FROM ActiveRaidPlayers WHERE ID_ActiveRaid = ?', [activeRaidId]);
+      await db.query('DELETE FROM ActiveRaids WHERE ID = ?', [activeRaidId]);
+      // (Opcional: podrías borrar la Raid si ya no quedan ActiveRaids)
+    }
+
+    res.json({ enemyHP: newEnemyHP, damage, turn: newTurn });
+  } catch (error) {
+    res.status(500).json({ error: 'Error en el ataque de raid', details: error.message });
   }
 });

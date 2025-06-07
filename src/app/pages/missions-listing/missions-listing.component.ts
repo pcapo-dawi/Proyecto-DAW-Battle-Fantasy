@@ -23,19 +23,34 @@ export class MissionsListingComponent implements OnInit {
       .subscribe(data => this.MissionsList = data);
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.playersService.getPlayerLogged().subscribe({
       next: (data) => {
         const playerId = data.player.ID;
-        this.http.get<any>(`http://localhost:3000/api/active-missions/by-player/${playerId}`).subscribe({
-          next: (result) => {
-            if (result.activeMission) {
-              this.router.navigate(
-                ['/', { outlets: { primary: ['battle', result.activeMission.ID_Mission], header: ['battle', result.activeMission.ID_Mission] } }]
-              );
+        // 1. ¿Está en una raid activa?
+        this.http.get<any>(`http://localhost:3000/api/active-raid-player/by-player/${playerId}`)
+          .subscribe({
+            next: (result) => {
+              if (result.activeRaidPlayer) {
+                // Redirige a la batalla de la raid (usa el ID_ActiveRaid como id)
+                this.router.navigate(
+                  ['/', { outlets: { primary: ['battle', result.activeRaidPlayer.ID_ActiveRaid], header: ['battle', result.activeRaidPlayer.ID_ActiveRaid] } }]
+                );
+              } else {
+                // 2. ¿Está en una misión activa?
+                this.http.get<any>(`http://localhost:3000/api/active-missions/by-player/${playerId}`)
+                  .subscribe({
+                    next: (result) => {
+                      if (result.activeMission) {
+                        this.router.navigate(
+                          ['/', { outlets: { primary: ['battle', result.activeMission.ID_Mission], header: ['battle', result.activeMission.ID_Mission] } }]
+                        );
+                      }
+                    }
+                  });
+              }
             }
-          }
-        });
+          });
       }
     });
   }

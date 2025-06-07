@@ -128,7 +128,7 @@ export async function getRaids() {
             Missions.Time as time,
             Missions.Reward as reward
         FROM Raids
-        JOIN Missions ON Raids.ID = Missions.ID
+        JOIN Missions ON Raids.ID_Mission = Missions.ID
     `);
     return rows;
 }
