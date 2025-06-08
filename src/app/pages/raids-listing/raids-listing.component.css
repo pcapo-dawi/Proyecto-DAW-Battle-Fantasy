@@ -1,0 +1,10 @@
+.p-raids {
+  padding: 0.9375rem;
+  background-color: rgb(238, 208, 157);
+}
+@media (min-width: 1314px) {
+  .p-raids {
+    width: 1051px;
+    justify-self: center;
+  }
+}/*# sourceMappingURL=raids-listing.component.css.map */

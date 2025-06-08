@@ -1,0 +1,214 @@
+<div class="p-battle">
+    <div class="p-battle__container">
+        <div class="p-battle__container__top">
+            <div class="p-battle__container__top__message"></div>
+            <span style="margin-left: 12px; font-weight: bold;">
+                {{ ((enemyCurrentHP / enemyMaxHP) * 100) |
+                number:'1.0-0' }}%
+            </span>
+            <div *ngIf="enemyInitialHP > 0" class="enemy-hp-bar-container">
+                <div class="p-battle__container__top--enemy-hp" [style.width.%]="(enemyCurrentHP / enemyMaxHP) * 100">
+                </div>
+            </div>
+            <div class="p-battle__container__top--enemy-ultimate">
+            </div>
+            <div class="p-battle__container__top__battle-screen">
+                <div class="p-battle__container__top__battle-screen--enemy">
+                    <video *ngIf="showEnemyIdle && enemyCurrentHP > 0"
+                        src="\assets\animations\enemies\idle\{{ missionData?.enemyId}}.webm" type="video/webm" autoplay
+                        muted loop id="player-idle-video">Your browser doesn't suport webm
+                        videos</video>
+                    <video *ngIf="!showIdle && !showEnemyAttack && enemyCurrentHP > 0" #damagedEnemyVideo
+                        src="\assets\animations\enemies\damaged\{{ missionData?.enemyId}}.webm" type="video/webm"
+                        autoplay muted loop>Your
+                        browser doesn't suport webm
+                        videos</video>
+                    <video *ngIf="showEnemyAttack && enemyCurrentHP > 0" #attackEnemyVideo
+                        src="\assets\animations\enemies\attack\{{ missionData?.enemyId}}.webm" type="video/webm"
+                        autoplay muted (ended)="onEnemyAttackEnded(attackEnemyVideo)">Your
+                        browser doesn't suport webm
+                        videos</video>
+                    <video *ngIf="enemyCurrentHP <= 0" #deadEnemyVideo
+                        src="\assets\animations\enemies\dead\{{ missionData?.enemyId}}.webm" type="video/webm" autoplay
+                        muted (ended)="onEnemyDeadEnded(deadEnemyVideo)">
+                        Your browser doesn't support webm videos
+                    </video>
+                </div>
+                <div class="p-battle__container__top__battle-screen--player">
+                    <video *ngIf="showIdle && !showPlayerDamaged"
+                        src="\assets\animations\jobs\idle\{{ player?.ID_JobAspect }}.webm" type="video/webm" autoplay
+                        muted loop id="player-idle-video">Your browser doesn't
+                        suport webm
+                        videos</video>
+                    <video *ngIf="!showIdle && !showPlayerDamaged" #normalAttackVideo
+                        src="\assets\animations\jobs\attack\{{ player?.ID_JobAspect }}.webm" type="video/webm" autoplay
+                        muted (ended)="onAttackVideoEnded(normalAttackVideo)">Your browser
+                        doesn't
+                        suport webm
+                        videos</video>
+                    <video *ngIf="showPlayerDamaged" #damagedVideo
+                        src="\assets\animations\jobs\damaged\{{ player?.ID_JobAspect }}.webm" type="video/webm" autoplay
+                        muted>Your
+                        browser
+                        doesn't
+                        suport webm
+                        videos</video>
+                </div>
+            </div>
+        </div>
+        <div class="p-battle__container__UI">
+            <div class="p-battle__container__UI__middle">
+                <button class="p-battle__container__UI__middle__attack-button" (click)="attack()"
+                    [disabled]="!canAttack" disabled>ATTACK</button>
+                <div class="p-battle__container__UI__middle__hp">
+                    <h3 class="p-battle__container__UI__middle__hp--text">
+                        HP {{ player?.HP }}
+                    </h3>
+                    <div *ngIf="player?.HP > 0 && player?.InitialHP > 0" class="player-hp-bar-container">
+                        <div class="p-battle__container__UI__middle__hp--bar"
+                            [style.width.%]="(player?.HP / player?.InitialHP) * 100">
+                        </div>
+                    </div>
+                </div>
+                <div class="p-battle__container__UI__middle__ultimate">
+                    <h3 class="p-battle__container__UI__middle__ultimate--text">DEFINITIVO</h3>
+                    <div class="p-battle__container__UI__middle__ultimate--bar"
+                        style="background: yellow; height: 10px;"></div>
+                </div>
+                <button class="p-battle__container__UI__middle__ultimate-button">DEFINITIVO</button>
+            </div>
+            <div class="p-battle__container__UI__player-abilities">
+                <div class="p-battle__container__UI__player-abilities__skills">
+                    <div class="p-battle__container__UI__player-abilities__skills__grid">
+                        <div class="p-battle__container__UI__player-abilities__skills__grid__skill1">
+                            <mat-card class="p-battle__container__UI__player-abilities__skills__grid__skill1__details"
+                                tabindex="0">
+                                <mat-card-header
+                                    class="p-battle__container__UI__player-abilities__skills__grid__skill1__details__header">
+                                    <div mat-card-avatar
+                                        class="p-battle__container__UI__player-abilities__skills__grid__skill1__details__header__image">
+                                    </div>
+                                    <div
+                                        class="p-battle__container__UI__player-abilities__skills__grid__skill1__details__header__name">
+                                        <h3>{{player.skill1Name}}</h3>
+                                    </div>
+                                </mat-card-header>
+                                <mat-card-content
+                                    class="p-battle__container__UI__player-abilities__skills__grid__skill1__details__content">
+                                    <p
+                                        class="p-battle__container__UI__player-abilities__skills__grid__skill1__details__content--description">
+                                        {{player.skill1Description}}</p>
+                                    <p
+                                        class="p-battle__container__UI__player-abilities__skills__grid__skill1__details__content--cooldown">
+                                        Cooldown:
+                                        {{player.skill1Cooldown}} turns</p>
+                                    <mat-card-actions align="end"
+                                        class="p-battle__container__UI__player-abilities__skills__grid__skill1__details__content--actions">
+                                        <button
+                                            class="p-battle__container__UI__player-abilities__skills__grid__skill1__details__content--actions--button">Use
+                                            Skill</button>
+                                    </mat-card-actions>
+                                </mat-card-content>
+                            </mat-card>
+                        </div>
+                        <div class="p-battle__container__UI__player-abilities__skills__grid__skill2">
+                            <mat-card class="p-battle__container__UI__player-abilities__skills__grid__skill2__details"
+                                tabindex="0">
+                                <mat-card-header
+                                    class="p-battle__container__UI__player-abilities__skills__grid__skill2__details__header">
+                                    <div mat-card-avatar
+                                        class="p-battle__container__UI__player-abilities__skills__grid__skill2__details__header__image">
+                                    </div>
+                                    <div
+                                        class="p-battle__container__UI__player-abilities__skills__grid__skill2__details__header__name">
+                                        <h3>{{player.skill2Name}}</h3>
+                                    </div>
+                                </mat-card-header>
+                                <mat-card-content
+                                    class="p-battle__container__UI__player-abilities__skills__grid__skill2__details__content">
+                                    <p
+                                        class="p-battle__container__UI__player-abilities__skills__grid__skill2__details__content--description">
+                                        {{player.skill2Description}}</p>
+                                    <p
+                                        class="p-battle__container__UI__player-abilities__skills__grid__skill2__details__content--cooldown">
+                                        Cooldown:
+                                        {{player.skill2Cooldown}} turns</p>
+                                    <mat-card-actions align="end"
+                                        class="p-battle__container__UI__player-abilities__skills__grid__skill2__details__content--actions">
+                                        <button
+                                            class="p-battle__container__UI__player-abilities__skills__grid__skill2__details__content--actions--button">Use
+                                            Skill</button>
+                                    </mat-card-actions>
+                                </mat-card-content>
+                            </mat-card>
+                        </div>
+                        <div class="p-battle__container__UI__player-abilities__skills__grid__skill3">
+                            <mat-card class="p-battle__container__UI__player-abilities__skills__grid__skill3__details"
+                                tabindex="0">
+                                <mat-card-header
+                                    class="p-battle__container__UI__player-abilities__skills__grid__skill3__details__header">
+                                    <div mat-card-avatar
+                                        class="p-battle__container__UI__player-abilities__skills__grid__skill3__details__header__image">
+                                    </div>
+                                    <div
+                                        class="p-battle__container__UI__player-abilities__skills__grid__skill3__details__header__name">
+                                        <h3>{{player.skill3Name}}</h3>
+                                    </div>
+                                </mat-card-header>
+                                <mat-card-content
+                                    class="p-battle__container__UI__player-abilities__skills__grid__skill3__details__content">
+                                    <p
+                                        class="p-battle__container__UI__player-abilities__skills__grid__skill3__details__content--description">
+                                        {{player.skill3Description}}</p>
+                                    <p
+                                        class="p-battle__container__UI__player-abilities__skills__grid__skill3__details__content--cooldown">
+                                        Cooldown:
+                                        {{player.skill3Cooldown}} turns</p>
+                                    <mat-card-actions align="end"
+                                        class="p-battle__container__UI__player-abilities__skills__grid__skill3__details__content--actions">
+                                        <button
+                                            class="p-battle__container__UI__player-abilities__skills__grid__skill3__details__content--actions--button">Use
+                                            Skill</button>
+                                    </mat-card-actions>
+                                </mat-card-content>
+                            </mat-card>
+                        </div>
+                        <div class="p-battle__container__UI__player-abilities__skills__grid__unique-ability">
+                            <mat-card
+                                class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details"
+                                tabindex="0">
+                                <mat-card-header
+                                    class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details__header">
+                                    <div mat-card-avatar
+                                        class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details__header__image">
+                                    </div>
+                                    <div
+                                        class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details__header__name">
+                                        <h3>{{player.uniqueAbilityName}}</h3>
+                                    </div>
+                                </mat-card-header>
+                                <mat-card-content
+                                    class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details__content">
+                                    <p
+                                        class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details--description">
+                                        {{player.uniqueAbilityDescription}}</p>
+                                    <p
+                                        class="p-battle__container__UI__player-abilities__skills__grid__unique-ability--cooldown">
+                                        Cooldown:
+                                        {{player.uniqueAbilityCooldown}} turns</p>
+                                    <mat-card-actions align="end"
+                                        class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details__content--actions">
+                                        <button
+                                            class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details__content--button">Use
+                                            Skill</button>
+                                    </mat-card-actions>
+                                </mat-card-content>
+                            </mat-card>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,16 @@
+.p-register {
+
+    &__login-container {
+        padding-top: 6.25rem;
+        position: absolute;
+        left: 0;
+
+        &__button {
+
+            &__register {
+                display: flex;
+                border-radius: 0px 50px 50px 0px;
+            }
+        }
+    }
+}

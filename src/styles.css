@@ -1,0 +1,79 @@
+/* You can add global styles to this file, and also import other style files */
+/*
+  Josh's Custom CSS Reset
+  https://www.joshwcomeau.com/css/custom-css-reset/
+*/
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    interpolate-size: allow-keywords;
+  }
+}
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+input, button, textarea, select {
+  font: inherit;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+}
+
+#root, #__next {
+  isolation: isolate;
+}
+
+body {
+  font-family: "Trebuchet MS", Courier, Verdana, "Century Gothic", "Candara", "Georgia", Arial, "Tahoma", "Garamond", "Comic Sans MS";
+}
+
+H1,
+H2 {
+  font-family: "Harrington", "Centaur", "Comic Sans MS";
+}
+
+H3,
+H4,
+H5,
+H6 {
+  font-family: "Centaur", "Comic Sans MS";
+}
+
+button {
+  font-family: "Century Gothic", monospace, "Comic Sans MS";
+}
+
+.battle-fantasy-font {
+  font-family: "Centaur";
+}
+
+/*body {
+    background-color: aquamarine;
+}*/
+/*body {
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}*//*# sourceMappingURL=styles.css.map */

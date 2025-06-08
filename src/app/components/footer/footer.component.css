@@ -1,0 +1,22 @@
+.c-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+@media (min-width: 768px) {
+  .c-footer {
+    flex-direction: row;
+    justify-content: space-evenly;
+  }
+}
+.c-footer__content1 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+@media (min-width: 768px) {
+  .c-footer__content1 {
+    flex-direction: row;
+    gap: 0.625rem;
+  }
+}/*# sourceMappingURL=footer.component.css.map */

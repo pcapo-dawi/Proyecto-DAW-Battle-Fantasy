@@ -1,0 +1,30 @@
+export interface Player {
+    ID: number;
+    Name: string;
+    hp: number;
+    attack: number;
+    defense: number;
+    Experience: number;
+    Level: number;
+    honors: number;
+    money: number;
+    Job: string;
+    skill1Name: string;
+    skill1Description: string;
+    skill1Cooldown: number;
+    skill1LvlUnlock: number;
+    skill2Name: string;
+    skill2Description: string;
+    skill2Cooldown: number;
+    skill2LvlUnlock: number;
+    skill3Name: string;
+    skill3Description: string;
+    skill3Cooldown: number;
+    skill3LvlUnlock: number;
+    uniqueAbilityName: string;
+    uniqueAbilityDescription: string;
+    uniqueAbilityCooldown: number;
+    lider: boolean;
+    ID_JobAspect?: number;
+    JobName: string;
+}
