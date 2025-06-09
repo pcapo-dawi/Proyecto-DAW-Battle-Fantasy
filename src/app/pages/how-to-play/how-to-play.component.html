@@ -47,7 +47,8 @@
 </div>
 <div class="p-register__login-container">
   <div class="p-register__login-container__button">
-    <button class="p-register__login-container__button__register" [routerLink]="'/'">
-      <mat-icon>keyboard_arrow_left</mat-icon>Return</button>
+    <button class="p-register__login-container__button__register" (click)="goBack()">
+      <mat-icon>keyboard_arrow_left</mat-icon>Return
+    </button>
   </div>
 </div>
