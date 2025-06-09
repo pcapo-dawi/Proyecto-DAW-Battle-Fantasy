@@ -27,6 +27,7 @@ export class BattleComponent implements OnInit {
   private router = inject(Router);
 
   player: any;
+  playerCurrentHP: number = 0;
 
   enemyInitialHP: number = 0;
   enemyCurrentHP: number = 0;
@@ -48,7 +49,7 @@ export class BattleComponent implements OnInit {
                 if (mission.enemyId) {
                   this.http.get<any>(`http://localhost:3000/api/enemies/${mission.enemyId}`).subscribe({
                     next: (enemy) => {
-                      this.enemyMaxHP = enemy.HP; // O enemy.hp según el campo
+                      this.enemyMaxHP = enemy.HP;
                     }
                   });
                 }
@@ -61,7 +62,7 @@ export class BattleComponent implements OnInit {
                 if (result.activeMission && result.activeMission.ID_Mission == this.missionId) {
                   this.enemyInitialHP = result.activeMission.EnemyHP;
                   this.enemyCurrentHP = result.activeMission.EnemyHP;
-                  this.player.HP = result.activeMission.PlayerHP;
+                  this.playerCurrentHP = result.activeMission.PlayerHP;
                   this.turn = result.activeMission.Turn || 1;
                   this.battleState.setTurn(this.turn);
                 } else {
@@ -72,7 +73,7 @@ export class BattleComponent implements OnInit {
                     next: (data) => {
                       this.enemyInitialHP = data.enemyHP;
                       this.enemyCurrentHP = data.enemyHP;
-                      this.player.HP = data.playerHP;
+                      this.playerCurrentHP = data.playerHP;
                       this.turn = data.turn || 1;
                       this.battleState.setTurn(this.turn);
                     }
@@ -127,6 +128,11 @@ export class BattleComponent implements OnInit {
       next: (result) => {
         this.updateEnemyHP(result.enemyHP);
         this.updateTurn(result.turn || this.turn + 1);
+
+        if (result.enemyHP === 0 && result.experience) {
+          this.handleExperience(result.experience);
+        }
+
         setTimeout(() => {
           if (this.normalAttackVideo && this.normalAttackVideo.nativeElement) {
             const video = this.normalAttackVideo.nativeElement;
@@ -141,6 +147,45 @@ export class BattleComponent implements OnInit {
     });
   }
 
+  // Gestiona la experiencia y nivel
+  handleExperience(expGained: number) {
+    if (!this.player) return;
+    let exp = this.player.Experience || 0;
+    let lvl = this.player.Level || 1;
+    let expToLevel = 10 * lvl;
+
+    let attack = this.player.Attack || 1;
+    let defense = this.player.Defense || 1;
+    let maxHP = this.player.HP || 100;
+
+    exp += expGained;
+    let leveledUp = false;
+    while (exp >= expToLevel) {
+      exp -= expToLevel;
+      lvl += 1;
+      expToLevel = 10 * lvl;
+      attack += 1;
+      defense += 1;
+      maxHP += 50;
+      leveledUp = true;
+    }
+    this.player.Experience = exp;
+    this.player.Level = lvl;
+    this.player.Attack = attack;
+    this.player.Defense = defense;
+    this.player.HP = maxHP;
+
+    // Actualiza los datos base del jugador
+    this.http.post('http://localhost:3000/api/players/update-exp', {
+      playerId: this.player.ID,
+      experience: exp,
+      level: lvl,
+      attack: attack,
+      defense: defense,
+      hp: maxHP
+    }).subscribe();
+  }
+
   onAttackVideoEnded(video: HTMLVideoElement): void {
     video.hidden = true;
     this.showIdle = true;
@@ -149,13 +194,13 @@ export class BattleComponent implements OnInit {
     setTimeout(() => {
       this.showEnemyIdle = false;
       this.showEnemyAttack = true;
-      this.showPlayerDamaged = true; // Aquí puedes mostrar el daño al jugador
+      this.showPlayerDamaged = true;
       this.http.post<any>('http://localhost:3000/api/battle/enemy-attack', {
         playerId: this.player.ID,
         missionId: this.missionId
       }).subscribe({
         next: (result) => {
-          this.player.HP = result.playerHP;
+          this.playerCurrentHP = result.playerHP;
         }
       });
       setTimeout(() => {

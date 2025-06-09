@@ -41,7 +41,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-//Haz registro de un nuevo jugador
+//Registro de un nuevo jugador
 app.post('/api/register', async (req, res) => {
   const { name, email, password } = req.body;
   try {
@@ -90,7 +90,6 @@ function authenticateToken(req, res, next) {
 // Endpoint protegido
 app.get('/api/player/me', authenticateToken, async (req, res) => {
   const userId = req.user.id;
-  // Haz un JOIN para obtener el nombre del Job
   const [rows] = await db.query(`
     SELECT p.*, j.Name as JobName
     FROM Players p
@@ -120,7 +119,7 @@ app.get('/api/jobs', async (req, res) => {
   }
 });
 
-// Nuevo endpoint para obtener trabajos con aspectos
+// Endpoint para obtener trabajos con aspectos
 app.get('/api/jobs-with-aspects', async (req, res) => {
   try {
     const jobs = await db.getJobsWithAspects();
@@ -130,7 +129,7 @@ app.get('/api/jobs-with-aspects', async (req, res) => {
   }
 });
 
-// Nuevo endpoint para obtener jobs con solo los IDs de sus aspectos
+// Endpoint para obtener jobs con solo los IDs de sus aspectos
 app.get('/api/jobs-aspect-ids', async (req, res) => {
   try {
     const jobs = await db.getJobsWithAspectIds(); // Esta función debe estar en db.js
@@ -150,7 +149,7 @@ app.get('/api/db-test', async (req, res) => {
   }
 });
 
-// Nueva ruta para obtener misiones
+// Endpoint para obtener misiones
 app.get('/api/missions', async (req, res) => {
   try {
     const missions = await db.getMissions();
@@ -160,7 +159,7 @@ app.get('/api/missions', async (req, res) => {
   }
 });
 
-// Nuevo endpoint para obtener una misión con su enemigo
+// Endpoint para obtener una misión con su enemigo
 app.get('/api/missions/:id', async (req, res) => {
   try {
     const mission = await getMissionById(req.params.id);
@@ -174,7 +173,7 @@ app.get('/api/missions/:id', async (req, res) => {
   }
 });
 
-// Nueva ruta para obtener raids
+// Endpoint para obtener raids
 app.get('/api/raids', async (req, res) => {
   try {
     const raids = await db.getRaids();
@@ -184,7 +183,7 @@ app.get('/api/raids', async (req, res) => {
   }
 });
 
-// Ruta de inicio
+// Endpoint de inicio
 app.get('/', (req, res) => {
   res.send('¡Backend de Battle Fantasy funcionando!');
 });
@@ -256,11 +255,18 @@ app.post('/api/battle/attack', async (req, res) => {
         [newEnemyHP, newTurn, playerId, missionId]
       );
     } else {
-      // Si el enemigo muere, borra la ActiveMission
+      // Cuando el enemigo muere
+      const [missionRows] = await db.query('SELECT ID_Enemy FROM Missions WHERE ID = ?', [missionId]);
+      const enemyId = missionRows[0].ID_Enemy;
+      const [enemyRows] = await db.query('SELECT Experience FROM Enemies WHERE ID = ?', [enemyId]);
+      const experience = enemyRows[0].Experience;
+
       await db.query(
         'DELETE FROM ActiveMissions WHERE ID_Player = ? AND ID_Mission = ?',
         [playerId, missionId]
       );
+
+      return res.json({ enemyHP: 0, damage, turn: newTurn, experience });
     }
 
     res.json({ enemyHP: newEnemyHP, damage, turn: newTurn });
@@ -392,5 +398,19 @@ app.delete('/api/players/:id', async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error al borrar el jugador', error: error.message });
+  }
+});
+
+// Endpoint para actualizar experiencia y nivel del jugador
+app.post('/api/players/update-exp', async (req, res) => {
+  const { playerId, experience, level, attack, defense, hp } = req.body;
+  try {
+    await db.query(
+      'UPDATE Players SET Experience = ?, Level = ?, Attack = ?, Defense = ?, HP = ? WHERE ID = ?',
+      [experience, level, attack, defense, hp, playerId]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al actualizar experiencia', error: error.message });
   }
 });

@@ -62,11 +62,11 @@
                     [disabled]="!canAttack" disabled>ATTACK</button>
                 <div class="p-battle__container__UI__middle__hp">
                     <h3 class="p-battle__container__UI__middle__hp--text">
-                        HP {{ player?.HP }}
+                        HP {{ playerCurrentHP }}
                     </h3>
                     <div *ngIf="player?.HP > 0 && player?.InitialHP > 0" class="player-hp-bar-container">
                         <div class="p-battle__container__UI__middle__hp--bar"
-                            [style.width.%]="(player?.HP / player?.InitialHP) * 100">
+                            [style.width.%]="(playerCurrentHP / player?.HP) * 100">
                         </div>
                     </div>
                 </div>
