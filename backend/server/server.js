@@ -12,9 +12,7 @@ import bcrypt from 'bcrypt';
 
 const app = express();
 
-app.use(cors({
-  origin: 'http://localhost:4200'
-}));
+app.use(cors({ origin: '*' }));
 
 const server = http.createServer(app);
 const io = new SocketIO(server, {
