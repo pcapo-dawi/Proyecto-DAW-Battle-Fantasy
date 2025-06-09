@@ -218,8 +218,7 @@ export class BattleComponent implements OnInit {
     this.showEnemyAttack = false;
     this.showEnemyIdle = true;
 
-    // Redirige si la vida del jugador es 0 o menos
-    if (this.player.HP <= 0) {
+    if (this.playerCurrentHP <= 0) {
       this.router.navigate([{ outlets: { primary: 'missions', header: 'missions' } }]);
       return;
     }
