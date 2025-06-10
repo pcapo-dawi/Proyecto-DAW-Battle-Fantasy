@@ -12,6 +12,28 @@ ng serve
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
+## Run locally on other devices
+
+To run a local server and connect to other devices like mobile phones, run:
+
+```bash
+ng serve --host 0.0.0.0
+```
+
+Make sure to disable firewall and navigate to the ip.
+
+## Run the backend server
+
+To start the backend server navigate to the backend folder and run:
+
+```bash
+ng server/server.js
+```
+
+## Run the backend locally to work with other devices
+
+Is nedeed to change localhost:3000 to ip:3000
+
 ## Code scaffolding
 
 Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
