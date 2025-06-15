@@ -126,6 +126,8 @@ export class BattleComponent implements OnInit {
   showEnemyIdle = true;
   showEnemyAttack = false;
   showPlayerDamaged = false;
+  showEnemyDamaged = false; // Nueva variable para controlar la animación de daño del enemigo
+  showSkill = false;
 
   updateEnemyHP(newHP: number) {
     this.enemyCurrentHP = newHP;
@@ -161,6 +163,10 @@ export class BattleComponent implements OnInit {
           this.handleExperience(result.experience);
         }
 
+        // Mostrar daño al enemigo tras el ataque
+        this.showEnemyDamaged = true;
+        this.showEnemyIdle = false;
+
         setTimeout(() => {
           if (this.normalAttackVideo && this.normalAttackVideo.nativeElement) {
             const video = this.normalAttackVideo.nativeElement;
@@ -168,6 +174,12 @@ export class BattleComponent implements OnInit {
             video.play();
           }
         });
+
+        // Oculta el daño del enemigo tras la animación (ajusta el tiempo según tu animación)
+        setTimeout(() => {
+          this.showEnemyDamaged = false;
+          this.showEnemyIdle = true;
+        }, 800); // 800ms o la duración de tu animación de daño
       },
       error: () => {
         this.canAttack = true;
@@ -262,6 +274,12 @@ export class BattleComponent implements OnInit {
   }
 
   useAbility(ability: any) {
+    if (!this.canAttack) return;
+    this.canAttack = false;
+    this.showIdle = false;
+    this.showPlayerDamaged = false;
+    this.showSkill = true; // Mostrar solo el video de habilidad
+
     this.http.post<any>('http://localhost:3000/api/battle/use-ability', {
       playerId: this.player.ID,
       missionId: this.missionId,
@@ -269,17 +287,19 @@ export class BattleComponent implements OnInit {
     }).subscribe({
       next: (result) => {
         this.updateEnemyHP(result.enemyHP);
-        this.updateTurn(result.turn || this.turn + 1);
-
-        // Actualiza los cooldowns desde el backend
-        if (result.cooldowns) {
-          this.cooldowns = result.cooldowns;
-        }
-
+        if (result.cooldowns) this.cooldowns = result.cooldowns;
         if (result.enemyHP === 0 && result.experience) {
           this.handleExperience(result.experience);
         }
       }
     });
+  }
+
+  // Cuando termina la animación de habilidad
+  onSkillVideoEnded(video: HTMLVideoElement): void {
+    video.hidden = true;
+    this.showSkill = false;
+    this.showIdle = true;
+    this.canAttack = true;
   }
 }

@@ -14,11 +14,11 @@
             </div>
             <div class="p-battle__container__top__battle-screen">
                 <div class="p-battle__container__top__battle-screen--enemy">
-                    <video *ngIf="showEnemyIdle && enemyCurrentHP > 0"
+                    <video *ngIf="showEnemyIdle && !showEnemyDamaged && !showEnemyAttack && enemyCurrentHP > 0"
                         src="\assets\animations\enemies\idle\{{ missionData?.enemyId}}.webm" type="video/webm" autoplay
                         muted loop id="player-idle-video">Your browser doesn't suport webm
                         videos</video>
-                    <video *ngIf="!showIdle && !showEnemyAttack && enemyCurrentHP > 0" #damagedEnemyVideo
+                    <video *ngIf="showEnemyDamaged && enemyCurrentHP > 0" #damagedEnemyVideo
                         src="\assets\animations\enemies\damaged\{{ missionData?.enemyId}}.webm" type="video/webm"
                         autoplay muted loop>Your
                         browser doesn't suport webm
@@ -35,12 +35,12 @@
                     </video>
                 </div>
                 <div class="p-battle__container__top__battle-screen--player">
-                    <video *ngIf="showIdle && !showPlayerDamaged"
+                    <video *ngIf="showIdle && !showPlayerDamaged && !showSkill"
                         src="\assets\animations\jobs\idle\{{ player?.ID_JobAspect }}.webm" type="video/webm" autoplay
                         muted loop id="player-idle-video">Your browser doesn't
                         suport webm
                         videos</video>
-                    <video *ngIf="!showIdle && !showPlayerDamaged" #normalAttackVideo
+                    <video *ngIf="!showIdle && !showPlayerDamaged && !showSkill" #normalAttackVideo
                         src="\assets\animations\jobs\attack\{{ player?.ID_JobAspect }}.webm" type="video/webm" autoplay
                         muted (ended)="onAttackVideoEnded(normalAttackVideo)">Your browser
                         doesn't
@@ -48,6 +48,13 @@
                         videos</video>
                     <video *ngIf="showPlayerDamaged" #damagedVideo
                         src="\assets\animations\jobs\damaged\{{ player?.ID_JobAspect }}.webm" type="video/webm" autoplay
+                        muted>Your
+                        browser
+                        doesn't
+                        suport webm
+                        videos</video>
+                    <video *ngIf="showSkill" #skillVideo (ended)="onSkillVideoEnded(skillVideo)"
+                        src="\assets\animations\jobs\skills\{{ player?.ID_JobAspect }}.webm" type="video/webm" autoplay
                         muted>Your
                         browser
                         doesn't
@@ -92,14 +99,19 @@
                                     <p>{{ ability.Description }}</p>
                                     <p>Damage: {{ ability.Damage }}</p>
                                     <p>Cooldown: {{ ability.Cooldown }} turns</p>
-                                    <p *ngIf="ability.UnlockLvl > 1">Unlocks at level {{ ability.UnlockLvl }}</p>
                                 </mat-card-content>
                                 <mat-card-actions>
-                                    <button (click)="useAbility(ability)"
-                                        [disabled]="player.Level < ability.UnlockLvl || (cooldowns[ability.ID] && cooldowns[ability.ID] > turn)">
+                                    <button (click)="useAbility(ability)" [disabled]="
+    player.Level < ability.UnlockLvl ||
+    (cooldowns[ability.ID] && cooldowns[ability.ID] > turn) ||
+    !canAttack ||
+    !showIdle ||
+    showPlayerDamaged ||
+    showSkill ||
+    showEnemyAttack
+  ">
                                         Use Skill
                                         <span *ngIf="cooldowns[ability.ID] && cooldowns[ability.ID] > turn">
-                                            ({{ cooldowns[ability.ID] - turn }} turns)
                                         </span>
                                     </button>
                                 </mat-card-actions>
