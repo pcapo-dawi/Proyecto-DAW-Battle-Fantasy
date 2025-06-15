@@ -246,6 +246,19 @@ app.post('/api/battle/attack', async (req, res) => {
     let newEnemyHP = currentEnemyHP - damage;
     if (newEnemyHP < 0) newEnemyHP = 0;
 
+    // Calcula el daño recibido por el jugador (ataque del enemigo)
+    let playerDamage = enemy.Attack - (player.Defense + job.BaseDefense);
+    if (playerDamage < 0) playerDamage = 0;
+
+    let newPlayerHP = activeRows[0].PlayerHP - playerDamage;
+    if (newPlayerHP < 0) newPlayerHP = 0;
+
+    // Actualiza el HP del jugador en ActiveMissions
+    await db.query(
+      'UPDATE ActiveMissions SET PlayerHP = ? WHERE ID_Player = ? AND ID_Mission = ?',
+      [newPlayerHP, playerId, missionId]
+    );
+
     // Incrementa el turno solo si el enemigo no ha muerto
     let newTurn = currentTurn;
     if (newEnemyHP > 0) {
@@ -266,10 +279,10 @@ app.post('/api/battle/attack', async (req, res) => {
         [playerId, missionId]
       );
 
-      return res.json({ enemyHP: 0, damage, turn: newTurn, experience });
+      return res.json({ enemyHP: 0, damage, playerDamage, playerHP: newPlayerHP, turn: newTurn, experience });
     }
 
-    res.json({ enemyHP: newEnemyHP, damage, turn: newTurn });
+    res.json({ enemyHP: newEnemyHP, damage, playerDamage, playerHP: newPlayerHP, turn: newTurn });
   } catch (error) {
     res.status(500).json({ error: 'Error en el ataque', details: error.message });
   }
@@ -438,7 +451,7 @@ app.post('/api/battle/use-ability', async (req, res) => {
     const [[ability]] = await db.query('SELECT * FROM Abilities WHERE ID = ?', [abilityId]);
     if (!activeMission || !ability) return res.status(404).json({ success: false, message: 'Datos no encontrados' });
 
-    // Leer cooldowns actuales (o inicializar)
+    // Leer cooldowns actuales o inicializar
     let cooldowns = {};
     if (activeMission.AbilityCooldowns) {
       cooldowns = JSON.parse(activeMission.AbilityCooldowns);
@@ -450,7 +463,6 @@ app.post('/api/battle/use-ability', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Habilidad en cooldown' });
     }
 
-    // Aplica el daño y lógica de combate...
     let enemyHP = activeMission.EnemyHP - ability.Damage;
     if (enemyHP < 0) enemyHP = 0;
 
@@ -463,7 +475,7 @@ app.post('/api/battle/use-ability', async (req, res) => {
       [enemyHP, JSON.stringify(cooldowns), playerId, missionId]
     );
 
-    // Si el enemigo muere, elimina la misión activa y devuelve experiencia
+    // Si el enemigo muere, elimina la misión activa y otorga experiencia
     let experience = 0;
     if (enemyHP === 0) {
       const [[mission]] = await db.query('SELECT * FROM Missions WHERE ID = ?', [missionId]);
@@ -480,5 +492,53 @@ app.post('/api/battle/use-ability', async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error al usar habilidad', error: error.message });
+  }
+});
+
+// En /api/battle/use-ultimate
+app.post('/api/battle/use-ultimate', async (req, res) => {
+  const { playerId, missionId } = req.body;
+  try {
+    // Obtener misión activa
+    const [[activeMission]] = await db.query('SELECT * FROM ActiveMissions WHERE ID_Player = ? AND ID_Mission = ?', [playerId, missionId]);
+    if (!activeMission) return res.status(404).json({ success: false, message: 'Active mission not found' });
+
+    // Obtener datos del jugador y job
+    const [[player]] = await db.query('SELECT * FROM Players WHERE ID = ?', [playerId]);
+    if (!player) return res.status(404).json({ success: false, message: 'Player not found' });
+    const [[job]] = await db.query('SELECT * FROM Jobs WHERE ID = ?', [player.ID_Job]);
+    if (!job) return res.status(404).json({ success: false, message: 'Job not found' });
+
+    // Obtener definitivo del job
+    const [[ultimate]] = await db.query('SELECT * FROM Definitivo WHERE ID = ?', [job.ID_Definitivo]);
+    if (!ultimate) return res.status(404).json({ success: false, message: 'Ultimate not found' });
+
+    // Aplicar daño al enemigo
+    let enemyHP = activeMission.EnemyHP - ultimate.Damage;
+    if (enemyHP < 0) enemyHP = 0;
+
+    // Actualizar HP del enemigo en la misión activa
+    await db.query(
+      'UPDATE ActiveMissions SET EnemyHP = ? WHERE ID_Player = ? AND ID_Mission = ?',
+      [enemyHP, playerId, missionId]
+    );
+
+    // Si el enemigo muere, elimina la misión activa y devuelve experiencia
+    let experience = 0;
+    if (enemyHP === 0) {
+      const [[mission]] = await db.query('SELECT * FROM Missions WHERE ID = ?', [missionId]);
+      const [[enemy]] = await db.query('SELECT * FROM Enemies WHERE ID = ?', [mission.ID_Enemy]);
+      experience = enemy.Experience || 0;
+      await db.query('DELETE FROM ActiveMissions WHERE ID_Player = ? AND ID_Mission = ?', [playerId, missionId]);
+    }
+
+    res.json({
+      success: true,
+      enemyHP,
+      damage: ultimate.Damage,
+      experience
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al usar definitivo', error: error.message });
   }
 });

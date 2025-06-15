@@ -35,32 +35,38 @@
                     </video>
                 </div>
                 <div class="p-battle__container__top__battle-screen--player">
-                    <video *ngIf="showIdle && !showPlayerDamaged && !showSkill"
+                    <video *ngIf="showIdle && !showPlayerDamaged && !showSkill && !ultimateReady && !showDefinitivo"
                         src="\assets\animations\jobs\idle\{{ player?.ID_JobAspect }}.webm" type="video/webm" autoplay
-                        muted loop id="player-idle-video">Your browser doesn't
-                        suport webm
-                        videos</video>
-                    <video *ngIf="!showIdle && !showPlayerDamaged && !showSkill" #normalAttackVideo
+                        muted loop id="player-idle-video">Your browser doesn't suport webm videos</video>
+                    <video *ngIf="!showIdle && !showPlayerDamaged && !showSkill && !showDefinitivo" #normalAttackVideo
                         src="\assets\animations\jobs\attack\{{ player?.ID_JobAspect }}.webm" type="video/webm" autoplay
                         muted (ended)="onAttackVideoEnded(normalAttackVideo)">Your browser
                         doesn't
                         suport webm
                         videos</video>
-                    <video *ngIf="showPlayerDamaged" #damagedVideo
+                    <video *ngIf="showPlayerDamaged && !showDefinitivo" #damagedVideo
                         src="\assets\animations\jobs\damaged\{{ player?.ID_JobAspect }}.webm" type="video/webm" autoplay
                         muted>Your
                         browser
                         doesn't
                         suport webm
                         videos</video>
-                    <video *ngIf="showSkill" #skillVideo (ended)="onSkillVideoEnded(skillVideo)"
+                    <video *ngIf="showSkill && !showDefinitivo" #skillVideo (ended)="onSkillVideoEnded(skillVideo)"
                         src="\assets\animations\jobs\skills\{{ player?.ID_JobAspect }}.webm" type="video/webm" autoplay
                         muted>Your
                         browser
                         doesn't
                         suport webm
                         videos</video>
+                    <video *ngIf="showIdle && !showPlayerDamaged && !showSkill && ultimateReady && !showDefinitivo"
+                        src="\assets\animations\jobs\especial\{{ player?.ID_JobAspect }}.webm" type="video/webm"
+                        autoplay muted loop id="player-idle-video">Your browser doesn't suport webm videos</video>
                 </div>
+                <video *ngIf="showDefinitivo" #definitivoVideo
+                    src="\assets\animations\jobs\definitivo\{{ player?.ID_JobAspect }}.webm" type="video/webm" autoplay
+                    muted (ended)="onDefinitivoVideoEnded(definitivoVideo)">
+                    Your browser doesn't suport webm videos
+                </video>
             </div>
         </div>
         <div class="p-battle__container__UI">
@@ -79,10 +85,17 @@
                 </div>
                 <div class="p-battle__container__UI__middle__ultimate">
                     <h3 class="p-battle__container__UI__middle__ultimate--text">DEFINITIVO</h3>
-                    <div class="p-battle__container__UI__middle__ultimate--bar"
-                        style="background: yellow; height: 10px;"></div>
+                    <div class="p-battle__container__UI__middle__ultimate--bar" [style.width.%]="ultimateProgress"
+                        style="background: yellow; height: 10px;">
+                    </div>
+                    <span style="font-weight: bold; margin-left: 8px;">
+                        {{ ultimateProgress | number:'1.0-0' }}%
+                    </span>
                 </div>
-                <button class="p-battle__container__UI__middle__ultimate-button">DEFINITIVO</button>
+                <button class="p-battle__container__UI__middle__ultimate-button" [disabled]="!ultimateReady"
+                    (click)="useUltimate()">
+                    DEFINITIVO
+                </button>
             </div>
             <div class="p-battle__container__UI__player-abilities">
                 <div class="p-battle__container__UI__player-abilities__skills">

@@ -37,6 +37,9 @@ export class BattleComponent implements OnInit {
 
   cooldowns: { [abilityId: number]: number } = {}; // abilityId -> turn when available
 
+  ultimateProgress: number = 0;
+  ultimateReady: boolean = false;
+
   ngOnInit() {
     this.playersService.getPlayerLogged().subscribe({
       next: (data) => {
@@ -128,6 +131,9 @@ export class BattleComponent implements OnInit {
   showPlayerDamaged = false;
   showEnemyDamaged = false; // Nueva variable para controlar la animación de daño del enemigo
   showSkill = false;
+  showDefinitivo = false; // Nueva variable para controlar la animación del ataque definitivo
+
+  _lastEnemyDamage: number = 0;
 
   updateEnemyHP(newHP: number) {
     this.enemyCurrentHP = newHP;
@@ -159,6 +165,17 @@ export class BattleComponent implements OnInit {
         this.updateEnemyHP(result.enemyHP);
         this.updateTurn(result.turn || this.turn + 1);
 
+        // Rellenar barra definitivo
+        const damageToEnemy = result.damage || 0;
+        let damageToPlayer = 0;
+        // Si tienes el daño recibido en la respuesta, úsalo. Si no, calcula la diferencia de HP:
+        if (typeof result.playerDamage === 'number') {
+          damageToPlayer = result.playerDamage;
+        } else if (typeof this.playerCurrentHP === 'number' && typeof result.playerHP === 'number') {
+          damageToPlayer = this.playerCurrentHP - result.playerHP;
+        }
+        this.incrementUltimate(damageToEnemy, damageToPlayer);
+
         if (result.enemyHP === 0 && result.experience) {
           this.handleExperience(result.experience);
         }
@@ -175,16 +192,24 @@ export class BattleComponent implements OnInit {
           }
         });
 
-        // Oculta el daño del enemigo tras la animación (ajusta el tiempo según tu animación)
         setTimeout(() => {
           this.showEnemyDamaged = false;
           this.showEnemyIdle = true;
-        }, 800); // 800ms o la duración de tu animación de daño
+        }, 800);
       },
       error: () => {
         this.canAttack = true;
       }
     });
+  }
+
+  // Nueva función para incrementar la barra
+  incrementUltimate(damageToEnemy: number, damageToPlayer: number) {
+    let progress = this.ultimateProgress + damageToEnemy + (damageToPlayer * 0.1);
+    if (progress > 100) progress = 100;
+    if (progress < 0) progress = 0;
+    this.ultimateProgress = progress;
+    this.ultimateReady = this.ultimateProgress >= 100;
   }
 
   // Gestiona la experiencia y nivel
@@ -241,6 +266,7 @@ export class BattleComponent implements OnInit {
       }).subscribe({
         next: (result) => {
           this.playerCurrentHP = result.playerHP;
+          this._lastEnemyDamage = result.damage || 0; // <--- Añade esta línea
         }
       });
       setTimeout(() => {
@@ -257,6 +283,11 @@ export class BattleComponent implements OnInit {
     video.hidden = true;
     this.showEnemyAttack = false;
     this.showEnemyIdle = true;
+
+    if (this._lastEnemyDamage) {
+      this.incrementUltimate(0, this._lastEnemyDamage);
+      this._lastEnemyDamage = 0;
+    }
 
     if (this.playerCurrentHP <= 0) {
       this.router.navigate([{ outlets: { primary: 'missions', header: 'missions' } }]);
@@ -299,6 +330,36 @@ export class BattleComponent implements OnInit {
   onSkillVideoEnded(video: HTMLVideoElement): void {
     video.hidden = true;
     this.showSkill = false;
+    this.showIdle = true;
+    this.canAttack = true;
+  }
+
+  useUltimate() {
+    if (!this.ultimateReady) return;
+    this.showDefinitivo = true;
+    this.showIdle = false;
+    this.showPlayerDamaged = false;
+    this.showSkill = false;
+
+    this.http.post<any>('http://localhost:3000/api/battle/use-ultimate', {
+      playerId: this.player.ID,
+      missionId: this.missionId
+    }).subscribe({
+      next: (result) => {
+        this.updateEnemyHP(result.enemyHP);
+        if (result.enemyHP === 0 && result.experience) {
+          this.handleExperience(result.experience);
+        }
+        // Reinicia la barra de definitivo
+        this.ultimateProgress = 0;
+        this.ultimateReady = false;
+      }
+    });
+  }
+
+  onDefinitivoVideoEnded(video: HTMLVideoElement): void {
+    video.hidden = true;
+    this.showDefinitivo = false;
     this.showIdle = true;
     this.canAttack = true;
   }
