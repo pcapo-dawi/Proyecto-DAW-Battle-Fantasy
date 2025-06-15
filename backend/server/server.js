@@ -414,3 +414,68 @@ app.post('/api/players/update-exp', async (req, res) => {
     res.status(500).json({ success: false, message: 'Error al actualizar experiencia', error: error.message });
   }
 });
+
+// Endpoint para obtener abilities por job
+app.get('/api/abilities/by-job/:jobId', async (req, res) => {
+  const jobId = req.params.jobId;
+  try {
+    const [rows] = await db.query(
+      'SELECT * FROM Abilities WHERE ID_Job = ? ORDER BY UnlockLvl ASC',
+      [jobId]
+    );
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al obtener habilidades', error: error.message });
+  }
+});
+
+// En /api/battle/use-ability
+app.post('/api/battle/use-ability', async (req, res) => {
+  const { playerId, missionId, abilityId } = req.body;
+  try {
+    // Obtener datos del jugador, misión y habilidad
+    const [[player]] = await db.query('SELECT * FROM Players WHERE ID = ?', [playerId]);
+    const [[activeMission]] = await db.query('SELECT * FROM ActiveMissions WHERE ID_Player = ? AND ID_Mission = ?', [playerId, missionId]);
+    const [[ability]] = await db.query('SELECT * FROM Abilities WHERE ID = ?', [abilityId]);
+
+    if (!player || !activeMission || !ability) {
+      return res.status(404).json({ success: false, message: 'Datos no encontrados' });
+    }
+
+    // Verifica si el jugador tiene el nivel suficiente para usar la habilidad
+    if (player.Level < ability.UnlockLvl) {
+      return res.status(400).json({ success: false, message: 'Nivel insuficiente para usar esta habilidad' });
+    }
+
+    // Aplica el daño de la habilidad al enemigo
+    let enemyHP = activeMission.EnemyHP - ability.Damage;
+    if (enemyHP < 0) enemyHP = 0;
+
+    // Actualiza el HP del enemigo en la misión activa
+    await db.query(
+      'UPDATE ActiveMissions SET EnemyHP = ? WHERE ID_Player = ? AND ID_Mission = ?',
+      [enemyHP, playerId, missionId]
+    );
+
+    let experience = 0;
+    // Si el enemigo muere
+    if (enemyHP === 0) {
+      // Obtener experiencia del enemigo
+      const [[mission]] = await db.query('SELECT * FROM Missions WHERE ID = ?', [missionId]);
+      const [[enemy]] = await db.query('SELECT * FROM Enemies WHERE ID = ?', [mission.ID_Enemy]);
+      experience = enemy.Experience || 0;
+
+      // Elimina la misión activa
+      await db.query('DELETE FROM ActiveMissions WHERE ID_Player = ? AND ID_Mission = ?', [playerId, missionId]);
+    }
+
+    // Devuelve el nuevo estado
+    res.json({
+      success: true,
+      enemyHP,
+      experience
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al usar habilidad', error: error.message });
+  }
+});

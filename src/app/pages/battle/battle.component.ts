@@ -33,11 +33,21 @@ export class BattleComponent implements OnInit {
   enemyCurrentHP: number = 0;
   enemyMaxHP: number = 0;
 
+  abilities: any[] = [];
+
   ngOnInit() {
     this.playersService.getPlayerLogged().subscribe({
       next: (data) => {
         this.player = data.player;
         this.player.InitialHP = data.player.HP;
+
+        // Cargar habilidades del Job del jugador
+        this.http.get<any[]>(`http://localhost:3000/api/abilities/by-job/${this.player.ID_Job}`).subscribe({
+          next: (abilities) => {
+            this.abilities = abilities;
+          }
+        });
+
         this.route.params.subscribe(params => {
           this.missionId = params['id'];
           if (this.missionId && this.player) {
@@ -231,5 +241,23 @@ export class BattleComponent implements OnInit {
 
   onEnemyDeadEnded(video: HTMLVideoElement): void {
     this.router.navigate([{ outlets: { primary: 'missions', header: 'missions' } }]);
+  }
+
+  useAbility(ability: any) {
+    this.http.post<any>('http://localhost:3000/api/battle/use-ability', {
+      playerId: this.player.ID,
+      missionId: this.missionId,
+      abilityId: ability.ID
+    }).subscribe({
+      next: (result) => {
+        this.updateEnemyHP(result.enemyHP);
+        this.updateTurn(result.turn || this.turn + 1);
+
+        if (result.enemyHP === 0 && result.experience) {
+          this.handleExperience(result.experience);
+        }
+        // ...más lógica si necesitas...
+      }
+    });
   }
 }
