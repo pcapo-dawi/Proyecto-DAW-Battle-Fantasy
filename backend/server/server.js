@@ -433,47 +433,50 @@ app.get('/api/abilities/by-job/:jobId', async (req, res) => {
 app.post('/api/battle/use-ability', async (req, res) => {
   const { playerId, missionId, abilityId } = req.body;
   try {
-    // Obtener datos del jugador, misión y habilidad
-    const [[player]] = await db.query('SELECT * FROM Players WHERE ID = ?', [playerId]);
+    // Obtener datos de la misión activa y habilidad
     const [[activeMission]] = await db.query('SELECT * FROM ActiveMissions WHERE ID_Player = ? AND ID_Mission = ?', [playerId, missionId]);
     const [[ability]] = await db.query('SELECT * FROM Abilities WHERE ID = ?', [abilityId]);
+    if (!activeMission || !ability) return res.status(404).json({ success: false, message: 'Datos no encontrados' });
 
-    if (!player || !activeMission || !ability) {
-      return res.status(404).json({ success: false, message: 'Datos no encontrados' });
+    // Leer cooldowns actuales (o inicializar)
+    let cooldowns = {};
+    if (activeMission.AbilityCooldowns) {
+      cooldowns = JSON.parse(activeMission.AbilityCooldowns);
+    }
+    const currentTurn = activeMission.Turn || 1;
+
+    // Validar cooldown
+    if (cooldowns[abilityId] && cooldowns[abilityId] > currentTurn) {
+      return res.status(400).json({ success: false, message: 'Habilidad en cooldown' });
     }
 
-    // Verifica si el jugador tiene el nivel suficiente para usar la habilidad
-    if (player.Level < ability.UnlockLvl) {
-      return res.status(400).json({ success: false, message: 'Nivel insuficiente para usar esta habilidad' });
-    }
-
-    // Aplica el daño de la habilidad al enemigo
+    // Aplica el daño y lógica de combate...
     let enemyHP = activeMission.EnemyHP - ability.Damage;
     if (enemyHP < 0) enemyHP = 0;
 
-    // Actualiza el HP del enemigo en la misión activa
+    // Actualiza el cooldown de la habilidad
+    cooldowns[abilityId] = currentTurn + ability.Cooldown;
+
+    // Actualiza la misión activa
     await db.query(
-      'UPDATE ActiveMissions SET EnemyHP = ? WHERE ID_Player = ? AND ID_Mission = ?',
-      [enemyHP, playerId, missionId]
+      'UPDATE ActiveMissions SET EnemyHP = ?, AbilityCooldowns = ? WHERE ID_Player = ? AND ID_Mission = ?',
+      [enemyHP, JSON.stringify(cooldowns), playerId, missionId]
     );
 
+    // Si el enemigo muere, elimina la misión activa y devuelve experiencia
     let experience = 0;
-    // Si el enemigo muere
     if (enemyHP === 0) {
-      // Obtener experiencia del enemigo
       const [[mission]] = await db.query('SELECT * FROM Missions WHERE ID = ?', [missionId]);
       const [[enemy]] = await db.query('SELECT * FROM Enemies WHERE ID = ?', [mission.ID_Enemy]);
       experience = enemy.Experience || 0;
-
-      // Elimina la misión activa
       await db.query('DELETE FROM ActiveMissions WHERE ID_Player = ? AND ID_Mission = ?', [playerId, missionId]);
     }
 
-    // Devuelve el nuevo estado
     res.json({
       success: true,
       enemyHP,
-      experience
+      experience,
+      cooldowns
     });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error al usar habilidad', error: error.message });

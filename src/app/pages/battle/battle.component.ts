@@ -77,6 +77,17 @@ export class BattleComponent implements OnInit {
                   this.playerCurrentHP = result.activeMission.PlayerHP;
                   this.turn = result.activeMission.Turn || 1;
                   this.battleState.setTurn(this.turn);
+
+                  // Cargar cooldowns si existen
+                  if (result.activeMission.AbilityCooldowns) {
+                    try {
+                      this.cooldowns = JSON.parse(result.activeMission.AbilityCooldowns);
+                    } catch {
+                      this.cooldowns = {};
+                    }
+                  } else {
+                    this.cooldowns = {};
+                  }
                 } else {
                   this.http.post<any>('http://localhost:3000/api/active-missions/start', {
                     playerId: this.player.ID,
@@ -251,9 +262,6 @@ export class BattleComponent implements OnInit {
   }
 
   useAbility(ability: any) {
-    // Si la habilidad está en cooldown, no hacer nada
-    if (this.cooldowns[ability.ID] && this.cooldowns[ability.ID] > this.turn) return;
-
     this.http.post<any>('http://localhost:3000/api/battle/use-ability', {
       playerId: this.player.ID,
       missionId: this.missionId,
@@ -263,13 +271,14 @@ export class BattleComponent implements OnInit {
         this.updateEnemyHP(result.enemyHP);
         this.updateTurn(result.turn || this.turn + 1);
 
-        // Poner la habilidad en cooldown
-        this.cooldowns[ability.ID] = (this.turn) + ability.Cooldown;
+        // Actualiza los cooldowns desde el backend
+        if (result.cooldowns) {
+          this.cooldowns = result.cooldowns;
+        }
 
         if (result.enemyHP === 0 && result.experience) {
           this.handleExperience(result.experience);
         }
-        // ...más lógica si necesitas...
       }
     });
   }
