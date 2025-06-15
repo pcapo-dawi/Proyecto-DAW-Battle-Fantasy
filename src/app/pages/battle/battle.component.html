@@ -95,8 +95,12 @@
                                     <p *ngIf="ability.UnlockLvl > 1">Unlocks at level {{ ability.UnlockLvl }}</p>
                                 </mat-card-content>
                                 <mat-card-actions>
-                                    <button (click)="useAbility(ability)" [disabled]="player.Level < ability.UnlockLvl">
+                                    <button (click)="useAbility(ability)"
+                                        [disabled]="player.Level < ability.UnlockLvl || (cooldowns[ability.ID] && cooldowns[ability.ID] > turn)">
                                         Use Skill
+                                        <span *ngIf="cooldowns[ability.ID] && cooldowns[ability.ID] > turn">
+                                            ({{ cooldowns[ability.ID] - turn }} turns)
+                                        </span>
                                     </button>
                                 </mat-card-actions>
                             </mat-card>

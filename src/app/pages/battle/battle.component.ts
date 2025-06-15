@@ -35,6 +35,8 @@ export class BattleComponent implements OnInit {
 
   abilities: any[] = [];
 
+  cooldowns: { [abilityId: number]: number } = {}; // abilityId -> turn when available
+
   ngOnInit() {
     this.playersService.getPlayerLogged().subscribe({
       next: (data) => {
@@ -121,6 +123,11 @@ export class BattleComponent implements OnInit {
   updateTurn(newTurn: number) {
     this.turn = newTurn;
     this.battleState.setTurn(newTurn);
+
+    // Opcional: limpiar cooldowns expirados (no es obligatorio)
+    // Object.keys(this.cooldowns).forEach(id => {
+    //   if (this.cooldowns[+id] <= this.turn) delete this.cooldowns[+id];
+    // });
   }
 
   attack(): void {
@@ -244,6 +251,9 @@ export class BattleComponent implements OnInit {
   }
 
   useAbility(ability: any) {
+    // Si la habilidad está en cooldown, no hacer nada
+    if (this.cooldowns[ability.ID] && this.cooldowns[ability.ID] > this.turn) return;
+
     this.http.post<any>('http://localhost:3000/api/battle/use-ability', {
       playerId: this.player.ID,
       missionId: this.missionId,
@@ -252,6 +262,9 @@ export class BattleComponent implements OnInit {
       next: (result) => {
         this.updateEnemyHP(result.enemyHP);
         this.updateTurn(result.turn || this.turn + 1);
+
+        // Poner la habilidad en cooldown
+        this.cooldowns[ability.ID] = (this.turn) + ability.Cooldown;
 
         if (result.enemyHP === 0 && result.experience) {
           this.handleExperience(result.experience);
