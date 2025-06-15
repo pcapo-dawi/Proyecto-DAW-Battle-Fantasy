@@ -91,6 +91,10 @@ export class BattleComponent implements OnInit {
                   } else {
                     this.cooldowns = {};
                   }
+
+                  // Cargar progreso y estado del ataque definitivo
+                  this.ultimateProgress = result.activeMission.PlayerDefinitivo || 0;
+                  this.ultimateReady = this.ultimateProgress >= 100;
                 } else {
                   this.http.post<any>('http://localhost:3000/api/active-missions/start', {
                     playerId: this.player.ID,
@@ -142,11 +146,6 @@ export class BattleComponent implements OnInit {
   updateTurn(newTurn: number) {
     this.turn = newTurn;
     this.battleState.setTurn(newTurn);
-
-    // Opcional: limpiar cooldowns expirados (no es obligatorio)
-    // Object.keys(this.cooldowns).forEach(id => {
-    //   if (this.cooldowns[+id] <= this.turn) delete this.cooldowns[+id];
-    // });
   }
 
   attack(): void {
@@ -210,6 +209,13 @@ export class BattleComponent implements OnInit {
     if (progress < 0) progress = 0;
     this.ultimateProgress = progress;
     this.ultimateReady = this.ultimateProgress >= 100;
+
+    // Guarda el valor en el backend
+    this.http.post('http://localhost:3000/api/active-missions/update-definitivo', {
+      playerId: this.player.ID,
+      missionId: this.missionId,
+      playerDefinitivo: this.ultimateProgress
+    }).subscribe();
   }
 
   // Gestiona la experiencia y nivel
@@ -353,6 +359,13 @@ export class BattleComponent implements OnInit {
         // Reinicia la barra de definitivo
         this.ultimateProgress = 0;
         this.ultimateReady = false;
+
+        // Guarda el valor reiniciado en el backend
+        this.http.post('http://localhost:3000/api/active-missions/update-definitivo', {
+          playerId: this.player.ID,
+          missionId: this.missionId,
+          playerDefinitivo: 0
+        }).subscribe();
       }
     });
   }

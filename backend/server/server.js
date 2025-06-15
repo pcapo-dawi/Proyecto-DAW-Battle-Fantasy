@@ -542,3 +542,17 @@ app.post('/api/battle/use-ultimate', async (req, res) => {
     res.status(500).json({ success: false, message: 'Error al usar definitivo', error: error.message });
   }
 });
+
+// En /api/active-missions/update-definitivo
+app.post('/api/active-missions/update-definitivo', async (req, res) => {
+  const { playerId, missionId, playerDefinitivo } = req.body;
+  try {
+    await db.query(
+      'UPDATE ActiveMissions SET PlayerDefinitivo = ? WHERE ID_Player = ? AND ID_Mission = ?',
+      [playerDefinitivo, playerId, missionId]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al actualizar definitivo', error: error.message });
+  }
+});

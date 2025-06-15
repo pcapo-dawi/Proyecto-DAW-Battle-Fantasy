@@ -92,8 +92,15 @@
                         {{ ultimateProgress | number:'1.0-0' }}%
                     </span>
                 </div>
-                <button class="p-battle__container__UI__middle__ultimate-button" [disabled]="!ultimateReady"
-                    (click)="useUltimate()">
+                <button class="p-battle__container__UI__middle__ultimate-button" [disabled]="
+        !ultimateReady ||
+        !canAttack ||
+        !showIdle ||
+        showPlayerDamaged ||
+        showSkill ||
+        showEnemyAttack ||
+        showDefinitivo
+    " (click)="useUltimate()">
                     DEFINITIVO
                 </button>
             </div>
