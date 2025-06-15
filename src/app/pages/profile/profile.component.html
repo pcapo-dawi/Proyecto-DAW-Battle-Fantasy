@@ -20,68 +20,19 @@
         <div class="p-profile__player-abilities__skills">
             <h2 class="p-profile__player-abilities__skills--title">Skills</h2>
             <div class="p-profile__player-abilities__skills__grid">
-                <div class="p-profile__player-abilities__skills__grid__skill1">
-                    <mat-card class="p-profile__player-abilities__skills__grid__skill1__details" tabindex="0">
-                        <mat-card-header class="p-profile__player-abilities__skills__grid__skill1__details__header">
-                            <div mat-card-avatar
-                                class="p-profile__player-abilities__skills__grid__skill1__details__header__image">
-                            </div>
-                            <div class="p-profile__player-abilities__skills__grid__skill1__details__header__name">
-                                <h3>{{player.skill1Name}}</h3>
+                <div *ngFor="let ability of abilities">
+                    <mat-card class="p-profile__player-abilities__skills__grid__details">
+                        <mat-card-header>
+                            <div mat-card-avatar></div>
+                            <div>
+                                <h3>{{ ability.Name }}</h3>
                             </div>
                         </mat-card-header>
-                        <mat-card-content class="p-profile__player-abilities__skills__grid__skill1__details__content">
-                            <p class="p-profile__player-abilities__skills__grid__skill1__details__content--description">
-                                {{player.skill1Description}}</p>
-                            <p class="p-profile__player-abilities__skills__grid__skill1__details__content--cooldown">
-                                Cooldown:
-                                {{player.skill1Cooldown}} turns</p>
-                        </mat-card-content>
-                    </mat-card>
-                </div>
-                <div class="p-profile__player-abilities__skills__grid__skill2">
-                    <mat-card class="p-profile__player-abilities__skills__grid__skill2__details" tabindex="0">
-                        <mat-card-header class="p-profile__player-abilities__skills__grid__skill2__details__header">
-                            <div mat-card-avatar
-                                class="p-profile__player-abilities__skills__grid__skill2__details__header__image">
-                            </div>
-                            <div class="p-profile__player-abilities__skills__grid__skill2__details__header__name">
-                                <h3>{{player.skill2Name}}</h3>
-                            </div>
-                        </mat-card-header>
-                        <mat-card-content class="p-profile__player-abilities__skills__grid__skill2__details__content">
-                            <p class="p-profile__player-abilities__skills__grid__skill2__details__content--description">
-                                {{player.skill2Description}}</p>
-                            <p class="p-profile__player-abilities__skills__grid__skill2__details__content--cooldown">
-                                Cooldown:
-                                {{player.skill2Cooldown}} turns</p>
-                            <p class="p-profile__player-abilities__skills__grid__skill2__details__content--lvlUnlock">
-                                Required Lvl:
-                                {{player.skill2LvlUnlock}}
-                            </p>
-                        </mat-card-content>
-                    </mat-card>
-                </div>
-                <div class="p-profile__player-abilities__skills__grid__skill3">
-                    <mat-card class="p-profile__player-abilities__skills__grid__skill3__details" tabindex="0">
-                        <mat-card-header class="p-profile__player-abilities__skills__grid__skill3__details__header">
-                            <div mat-card-avatar
-                                class="p-profile__player-abilities__skills__grid__skill3__details__header__image">
-                            </div>
-                            <div class="p-profile__player-abilities__skills__grid__skill3__details__header__name">
-                                <h3>{{player.skill3Name}}</h3>
-                            </div>
-                        </mat-card-header>
-                        <mat-card-content class="p-profile__player-abilities__skills__grid__skill3__details__content">
-                            <p class="p-profile__player-abilities__skills__grid__skill3__details__content--description">
-                                {{player.skill3Description}}</p>
-                            <p class="p-profile__player-abilities__skills__grid__skill3__details__content--cooldown">
-                                Cooldown:
-                                {{player.skill3Cooldown}} turns</p>
-                            <p class="p-profile__player-abilities__skills__grid__skill3__details__content--lvlUnlock">
-                                Required Lvl:
-                                {{player.skill3LvlUnlock}}
-                            </p>
+                        <mat-card-content>
+                            <p>{{ ability.Description }}</p>
+                            <p>Damage: {{ ability.Damage }}</p>
+                            <p>Cooldown: {{ ability.Cooldown }} turns</p>
+                            <p *ngIf="ability.UnlockLvl > 1">Required Lvl: {{ ability.UnlockLvl }}</p>
                         </mat-card-content>
                     </mat-card>
                 </div>

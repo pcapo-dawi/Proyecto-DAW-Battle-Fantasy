@@ -17,7 +17,9 @@ import { MatIconModule } from '@angular/material/icon'
   styleUrl: './profile.component.scss'
 })
 export class ProfileComponent implements OnInit {
-  player!: Player;
+  player: any;
+  abilities: any[] = [];
+
   constructor(
     private playersService: PlayersService,
     private http: HttpClient,
@@ -29,6 +31,11 @@ export class ProfileComponent implements OnInit {
     this.playersService.getPlayerLogged().subscribe({
       next: (data) => {
         this.player = data.player;
+        this.http.get<any[]>(`http://localhost:3000/api/abilities/by-job/${this.player.ID_Job}`).subscribe({
+          next: (abilities) => {
+            this.abilities = abilities;
+          }
+        });
       }
     });
   }

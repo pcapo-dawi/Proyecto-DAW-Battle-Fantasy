@@ -49,27 +49,8 @@
 
             &__grid {
 
-                &__skill1 {
-                    &__details {
-                        margin-bottom: 2.25rem;
-                        margin-top: 1rem;
-                        background-color: bisque;
-                    }
-                }
-
-                &__skill2 {
-                    &__details {
-                        margin-bottom: 2.25rem;
-                        background-color: bisque;
-
-                    }
-                }
-
-                &__skill3 {
-                    &__details {
-                        background-color: bisque;
-
-                    }
+                &__details {
+                    margin-bottom: 10px;
                 }
             }
         }
@@ -110,7 +91,7 @@
 .p-register {
 
     &__login-container {
-        padding-top: 65.25rem;
+        padding-top: 75.25rem;
         position: absolute;
         left: 0;
 
