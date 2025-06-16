@@ -1,0 +1,41 @@
+.p-missions {
+
+    padding: .9375rem;
+    background-color: rgb(238, 208, 157);
+
+    @media (min-width: 1314px) {
+        width: 1051px;
+        justify-self: center;
+    }
+}
+
+.p-register {
+
+    &__login-container {
+        padding-top: 6.25rem;
+        position: absolute;
+        left: 0;
+
+        &__button {
+
+            &__register {
+                display: flex;
+                border-radius: 0px 50px 50px 0px;
+            }
+        }
+    }
+}
+
+.toraids-container {
+    padding-bottom: 6.25rem;
+
+    &__button {
+        position: absolute;
+        right: 0;
+
+        &__raids {
+            display: flex;
+            border-radius: 50px 0px 0px 50px;
+        }
+    }
+}

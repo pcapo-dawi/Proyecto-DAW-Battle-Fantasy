@@ -1,0 +1,73 @@
+<div class="p-profile">
+    <div class="p-profile__player-data">
+        <div class="p-profile__player-data__image">
+            <img class="p-profile__player-data__image--img"
+                src="../../../assets/images/classes/{{ player.ID_JobAspect}}.png" alt="Character job">
+        </div>
+
+        <div class="p-profile__player-data__text">
+            <h3 class="p-profile__player-data__text--name">Name: </h3>
+            <p>{{player.Name}}</p>
+            <h3 class="p-profile__player-data__text--job">Job: </h3>
+            <p>{{player.JobName}}</p>
+            <h3 class="p-profile__player-data__text--level">Level: </h3>
+            <p>{{player.Level}}</p>
+            <h3 class="p-profile__player-data__text--exp">Exp: </h3>
+            <p>{{player.Experience}}</p>
+        </div>
+    </div>
+    <div class="p-profile__player-abilities">
+        <div class="p-profile__player-abilities__skills">
+            <h2 class="p-profile__player-abilities__skills--title">Skills</h2>
+            <div class="p-profile__player-abilities__skills__grid">
+                <div *ngFor="let ability of abilities">
+                    <mat-card class="p-profile__player-abilities__skills__grid__details">
+                        <mat-card-header>
+                            <div mat-card-avatar></div>
+                            <div>
+                                <h3>{{ ability.Name }}</h3>
+                            </div>
+                        </mat-card-header>
+                        <mat-card-content>
+                            <p>{{ ability.Description }}</p>
+                            <p>Damage: {{ ability.Damage }}</p>
+                            <p>Cooldown: {{ ability.Cooldown }} turns</p>
+                            <p *ngIf="ability.UnlockLvl > 1">Required Lvl: {{ ability.UnlockLvl }}</p>
+                        </mat-card-content>
+                    </mat-card>
+                </div>
+            </div>
+        </div>
+        <div class="p-profile__player-abilities__unique-ability">
+
+            <h2 class="p-profile__player-abilities__unique-ability--title">Unique Ability</h2>
+            <div class="p-profile__player-abilities__unique-ability__grid">
+                <mat-card class="p-profile__player-abilities__unique-ability__grid__details" tabindex="0">
+                    <mat-card-header class="p-profile__player-abilities__unique-ability__grid__details__header">
+                        <div mat-card-avatar
+                            class="p-profile__player-abilities__unique-ability__grid__details__header__image">
+                        </div>
+                        <div class="p-profile__player-abilities__unique-ability__grid__details__header__name">
+                            <h3>{{uniqueAbility.Name}}</h3>
+                        </div>
+                    </mat-card-header>
+                    <mat-card-content class="p-profile__player-abilities__unique-ability__grid__details__content">
+                        <p class="p-profile__player-abilities__unique-ability__grid__details--description">
+                            {{uniqueAbility.Description}}</p>
+                        <p class="p-profile__player-abilities__unique-ability__grid--cooldown">Cooldown:
+                            {{uniqueAbility.Cooldown}} turns</p>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+        </div>
+    </div>
+    <div class="p-register__login-container">
+        <div class="p-register__login-container__button">
+            <button class="p-register__login-container__button__register" [routerLink]="'/'">
+                <mat-icon>keyboard_arrow_left</mat-icon>Home</button>
+        </div>
+    </div>
+    <div class="p-profile__delete-account">
+        <button class="p-profile__delete-account__button" (click)="deleteAccount()">Delete account</button>
+    </div>
+</div>

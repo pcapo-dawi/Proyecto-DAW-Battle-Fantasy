@@ -1,0 +1,196 @@
+<div class="p-battle">
+    <div class="p-battle__container">
+        <div class="p-battle__container__top">
+            <div class="p-battle__container__top__message"></div>
+            <span style="margin-left: 12px; font-weight: bold;">
+                {{ ((enemyCurrentHP / enemyMaxHP) * 100) |
+                number:'1.0-0' }}%
+            </span>
+            <div *ngIf="enemyInitialHP > 0" class="enemy-hp-bar-container">
+                <div class="p-battle__container__top--enemy-hp" [style.width.%]="(enemyCurrentHP / enemyMaxHP) * 100">
+                </div>
+            </div>
+            <div class="p-battle__container__top--enemy-ultimate">
+                <div class="enemy-ultimate-bar" [style.width.%]="enemyUltimateProgress"
+                    style="background: orange; height: 10px;">
+                </div>
+            </div>
+            <div class="p-battle__container__top__battle-screen">
+                <div class="p-battle__container__top__battle-screen--enemy">
+                    <video
+                        *ngIf="showEnemyIdle && !showEnemyDamaged && !showEnemyAttack && enemyCurrentHP > 0 && !enemyUltimateReady"
+                        src="\assets\animations\enemies\idle\{{ missionData?.enemyId}}.webm" type="video/webm" autoplay
+                        muted loop id="player-idle-video">Your browser doesn't suport webm
+                        videos</video>
+                    <video *ngIf="showEnemyDamaged && enemyCurrentHP > 0" #damagedEnemyVideo
+                        src="\assets\animations\enemies\damaged\{{ missionData?.enemyId}}.webm" type="video/webm"
+                        autoplay muted loop>Your
+                        browser doesn't suport webm
+                        videos</video>
+                    <video *ngIf="showEnemyAttack && enemyCurrentHP > 0" #attackEnemyVideo
+                        src="\assets\animations\enemies\attack\{{ missionData?.enemyId}}.webm" type="video/webm"
+                        autoplay muted (ended)="onEnemyAttackEnded(attackEnemyVideo)">Your
+                        browser doesn't suport webm
+                        videos</video>
+                    <video *ngIf="enemyCurrentHP <= 0" #deadEnemyVideo
+                        src="\assets\animations\enemies\dead\{{ missionData?.enemyId}}.webm" type="video/webm" autoplay
+                        muted (ended)="onEnemyDeadEnded(deadEnemyVideo)">
+                        Your browser doesn't support webm videos
+                    </video>
+                    <video
+                        *ngIf="showEnemyIdle && !showEnemyDamaged && !showEnemyAttack && enemyCurrentHP > 0 && enemyUltimateReady"
+                        src="\assets\animations\enemies\skills\{{ missionData?.enemyId}}.webm" type="video/webm"
+                        autoplay muted loop id="player-idle-video">Your browser doesn't suport webm
+                        videos</video>
+                    <video *ngIf="showEnemySuperAttack && enemyCurrentHP > 0" #superAttackEnemyVideo
+                        src="\assets\animations\enemies\especial\{{ missionData?.enemyId}}.webm" type="video/webm"
+                        autoplay muted (ended)="onEnemyAttackEnded(superAttackEnemyVideo)">Your
+                        browser doesn't suport webm
+                        videos</video>
+                </div>
+                <div class="p-battle__container__top__battle-screen--player">
+                    <video *ngIf="showIdle && !showPlayerDamaged && !showSkill && !ultimateReady && !showDefinitivo"
+                        src="\assets\animations\jobs\idle\{{ player?.ID_JobAspect }}.webm" type="video/webm" autoplay
+                        muted loop id="player-idle-video">Your browser doesn't suport webm videos</video>
+                    <video *ngIf="!showIdle && !showPlayerDamaged && !showSkill && !showDefinitivo" #normalAttackVideo
+                        src="\assets\animations\jobs\attack\{{ player?.ID_JobAspect }}.webm" type="video/webm" autoplay
+                        muted (ended)="onAttackVideoEnded(normalAttackVideo)">Your browser
+                        doesn't
+                        suport webm
+                        videos</video>
+                    <video *ngIf="showPlayerDamaged && !showDefinitivo" #damagedVideo
+                        src="\assets\animations\jobs\damaged\{{ player?.ID_JobAspect }}.webm" type="video/webm" autoplay
+                        muted>Your
+                        browser
+                        doesn't
+                        suport webm
+                        videos</video>
+                    <video *ngIf="showSkill && !showDefinitivo" #skillVideo (ended)="onSkillVideoEnded(skillVideo)"
+                        src="\assets\animations\jobs\skills\{{ player?.ID_JobAspect }}.webm" type="video/webm" autoplay
+                        muted>Your
+                        browser
+                        doesn't
+                        suport webm
+                        videos</video>
+                    <video *ngIf="showIdle && !showPlayerDamaged && !showSkill && ultimateReady && !showDefinitivo"
+                        src="\assets\animations\jobs\especial\{{ player?.ID_JobAspect }}.webm" type="video/webm"
+                        autoplay muted loop id="player-idle-video">Your browser doesn't suport webm videos</video>
+                </div>
+                <video *ngIf="showDefinitivo" #definitivoVideo
+                    src="\assets\animations\jobs\definitivo\{{ player?.ID_JobAspect }}.webm" type="video/webm" autoplay
+                    muted (ended)="onDefinitivoVideoEnded(definitivoVideo)">
+                    Your browser doesn't suport webm videos
+                </video>
+            </div>
+        </div>
+        <div class="p-battle__container__UI">
+            <div class="p-battle__container__UI__middle">
+                <button class="p-battle__container__UI__middle__attack-button" (click)="attack()"
+                    [disabled]="!canAttack" disabled>ATTACK</button>
+                <div class="p-battle__container__UI__middle__hp">
+                    <h3 class="p-battle__container__UI__middle__hp--text">
+                        HP {{ playerCurrentHP }}
+                    </h3>
+                    <div *ngIf="player?.HP > 0 && player?.InitialHP > 0" class="player-hp-bar-container">
+                        <div class="p-battle__container__UI__middle__hp--bar"
+                            [style.width.%]="(playerCurrentHP / player?.HP) * 100">
+                        </div>
+                    </div>
+                </div>
+                <div class="p-battle__container__UI__middle__ultimate">
+                    <h3 class="p-battle__container__UI__middle__ultimate--text">DEFINITIVO</h3>
+                    <div class="p-battle__container__UI__middle__ultimate--bar" [style.width.%]="ultimateProgress"
+                        style="background: yellow; height: 10px;">
+                    </div>
+                    <span style="font-weight: bold; margin-left: 8px;">
+                        {{ ultimateProgress | number:'1.0-0' }}%
+                    </span>
+                </div>
+                <button class="p-battle__container__UI__middle__ultimate-button" [disabled]="
+        !ultimateReady ||
+        !canAttack ||
+        !showIdle ||
+        showPlayerDamaged ||
+        showSkill ||
+        showEnemyAttack ||
+        showDefinitivo
+    " (click)="useUltimate()">
+                    DEFINITIVO
+                </button>
+            </div>
+            <div class="p-battle__container__UI__player-abilities">
+                <div class="p-battle__container__UI__player-abilities__skills">
+                    <div class="p-battle__container__UI__player-abilities__skills__grid">
+                        <div *ngFor="let ability of abilities">
+                            <mat-card class="p-battle__container__UI__player-abilities__skills__grid__details">
+                                <mat-card-header>
+                                    <div mat-card-avatar></div>
+                                    <div>
+                                        <h3>{{ ability.Name }}</h3>
+                                    </div>
+                                </mat-card-header>
+                                <mat-card-content>
+                                    <p>{{ ability.Description }}</p>
+                                    <p>Damage: {{ ability.Damage }}</p>
+                                    <p>Cooldown: {{ ability.Cooldown }} turns</p>
+                                </mat-card-content>
+                                <mat-card-actions align="end">
+                                    <button (click)="useAbility(ability)" [disabled]="
+    player.Level < ability.UnlockLvl ||
+    (getAbilityCooldown(ability) && getAbilityCooldown(ability) > turn) ||
+    !canAttack ||
+    !showIdle ||
+    showPlayerDamaged ||
+    showSkill ||
+    showEnemyAttack
+  ">
+                                        Use Skill
+                                    </button>
+                                </mat-card-actions>
+                            </mat-card>
+                        </div>
+                        <div class="p-battle__container__UI__player-abilities__skills__grid__unique-ability">
+                            <mat-card
+                                class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details"
+                                tabindex="0">
+                                <mat-card-header
+                                    class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details__header">
+                                    <div mat-card-avatar
+                                        class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details__header__image">
+                                    </div>
+                                    <div
+                                        class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details__header__name">
+                                        <h3>{{uniqueAbility.Name}}</h3>
+                                    </div>
+                                </mat-card-header>
+                                <mat-card-content
+                                    class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details__content">
+                                    <p
+                                        class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details--description">
+                                        {{uniqueAbility.Description}}</p>
+                                    <p>Damage: {{ uniqueAbility.Damage }}</p>
+                                    <p
+                                        class="p-battle__container__UI__player-abilities__skills__grid__unique-ability--cooldown">
+                                        Cooldown:
+                                        {{uniqueAbility.Cooldown}} turns</p>
+                                    <mat-card-actions align="end"
+                                        class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details__content--actions">
+                                        <button (click)="useUniqueAbility()" [disabled]="
+    (getUniqueAbilityCooldown() && getUniqueAbilityCooldown() > turn) ||
+    !canAttack ||
+    !showIdle ||
+    showPlayerDamaged ||
+    showSkill ||
+    showEnemyAttack
+  ">
+                                            Use Skill
+                                        </button>
+                                    </mat-card-actions>
+                                </mat-card-content>
+                            </mat-card>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

@@ -1,0 +1,54 @@
+.p-home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+@media (min-width: 768px) {
+  .p-home {
+    flex-direction: row;
+    justify-content: center;
+    padding-top: 10rem;
+  }
+}
+@media (min-width: 1260px) {
+  .p-home {
+    padding-right: 200px;
+  }
+}
+.p-home__main-block__title {
+  justify-self: center;
+}
+.p-home__main-block__logo--image {
+  width: 100%;
+  height: 100%;
+  max-width: 20rem;
+  max-height: 31.375rem;
+  margin-bottom: 2.5rem;
+}
+@media (min-width: 768px) {
+  .p-home__main-block__logo--image {
+    max-width: 35rem;
+    max-height: 37.5rem;
+    margin-bottom: 0;
+  }
+}
+.p-home__buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.p-home__buttons__play {
+  padding: 0.9375rem;
+  background-color: rgb(238, 208, 157);
+}
+.p-home__buttons__play--title {
+  justify-self: center;
+  padding-bottom: 1rem;
+}
+.p-home__buttons__play__buttons {
+  display: flex;
+  gap: 5.625rem;
+}
+.p-home__buttons__shop {
+  padding-top: 3rem;
+}/*# sourceMappingURL=home.component.css.map */

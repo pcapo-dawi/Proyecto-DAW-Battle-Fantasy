@@ -1,0 +1,21 @@
+<div class="p-register">
+    <div class="register">
+        <form class="custom-form" method="post">
+            <h1>Register</h1>
+            <input type="text" [(ngModel)]="username" name="username" placeholder="Username" required="required" />
+            <input type="email" [(ngModel)]="email" name="email" placeholder="Email" required="required"
+                pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" #emailInput="ngModel" />
+            <div *ngIf="emailInput.invalid && emailInput.touched" style="color:red;">
+                Please enter a valid email address.
+            </div>
+            <input type="password" [(ngModel)]="password" name="password" placeholder="Password" required="required" />
+            <button type="submit" (click)="register()">Register</button>
+        </form>
+    </div>
+    <div class="p-register__login-container">
+        <div class="p-register__login-container__button">
+            <button class="p-register__login-container__button__register" [routerLink]="'/login'">
+                <mat-icon>keyboard_arrow_left</mat-icon>Log in</button>
+        </div>
+    </div>
+</div>

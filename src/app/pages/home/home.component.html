@@ -1,0 +1,28 @@
+<div class="p-home">
+    <div class="p-home__main-block">
+        <div class="p-home__main-block__title">
+            <h1 class="battle-fantasy-fon">Battle Fantasy</h1>
+        </div>
+        <div class="p-home__main-block__logo">
+            <img src="../../../assets/images/classes/{{ player.ID_JobAspect}}.png" alt="Character job"
+                class="p-home__main-block__logo--image">
+        </div>
+    </div>
+    <div class="p-home__buttons">
+        <div class="p-home__buttons__play">
+            <div class="p-home__buttons__play--title">
+                <h3>Play</h3>
+            </div>
+            <div class="p-home__buttons__play__buttons">
+                <div class="p-home__buttons__play__buttons--missions">
+                    <button [routerLink]="[{outlets: { primary: 'missions', header: 'missions'} }]">Missions</button>
+                </div>
+                <div class="p-home__buttons__play__buttons--raids">
+                    <button [routerLink]="[{outlets: { primary: 'raids', header: 'raids'} }]">Raids</button>
+                </div>
+            </div>
+        </div>
+        <!--<div class="p-home__buttons__shop">
+            <button>Shop</button>
+        </div>-->
+    </div>

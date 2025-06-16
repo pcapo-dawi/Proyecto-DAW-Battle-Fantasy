@@ -1,0 +1,21 @@
+.c-profile-header {
+    justify-self: center;
+    margin-top: 3.125rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    &__button-container {
+        @media (min-width: 768px) {
+            position: absolute;
+            right: 6.25rem;
+            align-items: center;
+
+        }
+    }
+}
+
+button {
+    display: flex;
+}
