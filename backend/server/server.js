@@ -63,10 +63,32 @@ app.post('/api/players/:id/assign-job', async (req, res) => {
   const playerId = req.params.id;
   const { jobId, jobAspectId } = req.body;
   try {
+    //Asigna el Job y el Aspect
     await db.query(
       'UPDATE Players SET ID_Job = ?, ID_JobAspect = ? WHERE ID = ?',
       [jobId, jobAspectId, playerId]
     );
+
+    //Selecciona una UniqueAbility aleatoria para ese Job
+    const [abilities] = await db.query(
+      'SELECT ID FROM UniqueAbilities WHERE ID_Job = ?',
+      [jobId]
+    );
+    if (abilities.length > 0) {
+      const randomIndex = Math.floor(Math.random() * abilities.length);
+      const uniqueAbilityId = abilities[randomIndex].ID;
+      await db.query(
+        'UPDATE Players SET ID_UniqueAbility = ? WHERE ID = ?',
+        [uniqueAbilityId, playerId]
+      );
+    } else {
+      //Si no hay UniqueAbilities para ese Job, puedes dejarlo en null o manejarlo como prefieras
+      await db.query(
+        'UPDATE Players SET ID_UniqueAbility = NULL WHERE ID = ?',
+        [playerId]
+      );
+    }
+
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error al asignar job', error: error.message });
@@ -454,14 +476,22 @@ app.get('/api/abilities/by-job/:jobId', async (req, res) => {
 });
 
 app.post('/api/battle/use-ability', async (req, res) => {
-  const { playerId, missionId, abilityId } = req.body;
+  const { playerId, missionId, abilityId, isUnique } = req.body;
   try {
-    //Obtener datos de la misión activa y habilidad
     const [[activeMission]] = await db.query('SELECT * FROM ActiveMissions WHERE ID_Player = ? AND ID_Mission = ?', [playerId, missionId]);
-    const [[ability]] = await db.query('SELECT * FROM Abilities WHERE ID = ?', [abilityId]);
-    if (!activeMission || !ability) return res.status(404).json({ success: false, message: 'Datos no encontrados' });
+    if (!activeMission) return res.status(404).json({ success: false, message: 'Active mission not found' });
 
-    //Leer cooldowns actuales o inicializar
+    let ability;
+    let cooldownKey;
+    if (isUnique) {
+      [[ability]] = await db.query('SELECT * FROM UniqueAbilities WHERE ID = ?', [abilityId]);
+      cooldownKey = `u_${abilityId}`;
+    } else {
+      [[ability]] = await db.query('SELECT * FROM Abilities WHERE ID = ?', [abilityId]);
+      cooldownKey = `a_${abilityId}`;
+    }
+    if (!ability) return res.status(404).json({ success: false, message: 'Ability not found' });
+
     let cooldowns = {};
     if (activeMission.AbilityCooldowns) {
       cooldowns = JSON.parse(activeMission.AbilityCooldowns);
@@ -469,7 +499,7 @@ app.post('/api/battle/use-ability', async (req, res) => {
     const currentTurn = activeMission.Turn || 1;
 
     //Validar cooldown
-    if (cooldowns[abilityId] && cooldowns[abilityId] > currentTurn) {
+    if (cooldowns[cooldownKey] && cooldowns[cooldownKey] > currentTurn) {
       return res.status(400).json({ success: false, message: 'Habilidad en cooldown' });
     }
 
@@ -477,9 +507,8 @@ app.post('/api/battle/use-ability', async (req, res) => {
     if (enemyHP < 0) enemyHP = 0;
 
     //Actualiza el cooldown de la habilidad
-    cooldowns[abilityId] = currentTurn + ability.Cooldown;
+    cooldowns[cooldownKey] = currentTurn + ability.Cooldown;
 
-    //Actualiza la misión activa
     await db.query(
       'UPDATE ActiveMissions SET EnemyHP = ?, AbilityCooldowns = ? WHERE ID_Player = ? AND ID_Mission = ?',
       [enemyHP, JSON.stringify(cooldowns), playerId, missionId]
@@ -577,5 +606,15 @@ app.post('/api/active-missions/update-enemy-superattack', async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error al actualizar EnemySuperAttack', error: error.message });
+  }
+});
+
+app.get('/api/unique-abilities/:id', async (req, res) => {
+  const id = req.params.id;
+  const [rows] = await db.query('SELECT * FROM UniqueAbilities WHERE ID = ?', [id]);
+  if (rows.length > 0) {
+    res.json(rows[0]);
+  } else {
+    res.status(404).json({ error: 'UniqueAbility not found' });
   }
 });

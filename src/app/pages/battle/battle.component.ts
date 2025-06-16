@@ -35,7 +35,7 @@ export class BattleComponent implements OnInit {
 
   abilities: any[] = [];
 
-  cooldowns: { [abilityId: number]: number } = {};
+  cooldowns: { [abilityId: string]: number } = {};
 
   ultimateProgress: number = 0;
   ultimateReady: boolean = false;
@@ -44,6 +44,8 @@ export class BattleComponent implements OnInit {
   enemyUltimateReady: boolean = false;
 
   showEnemySuperAttack = false;
+
+  uniqueAbility: any = null;
 
   ngOnInit() {
     this.playersService.getPlayerLogged().subscribe({
@@ -57,6 +59,14 @@ export class BattleComponent implements OnInit {
             this.abilities = abilities;
           }
         });
+
+        if (this.player.ID_UniqueAbility) {
+          this.http.get<any>(`http://localhost:3000/api/unique-abilities/${this.player.ID_UniqueAbility}`).subscribe({
+            next: (uniqueAbility) => {
+              this.uniqueAbility = uniqueAbility;
+            }
+          });
+        }
 
         this.route.params.subscribe(params => {
           this.missionId = params['id'];
@@ -97,7 +107,7 @@ export class BattleComponent implements OnInit {
                     this.cooldowns = {};
                   }
 
-                  // Cargar progreso y estado del ataque definitivo
+                  //Cargar progreso y estado del ataque definitivo
                   this.ultimateProgress = result.activeMission.PlayerDefinitivo || 0;
                   this.ultimateReady = this.ultimateProgress >= 100;
 
@@ -173,7 +183,7 @@ export class BattleComponent implements OnInit {
         this.updateEnemyHP(result.enemyHP);
         this.updateTurn(result.turn || this.turn + 1);
 
-        // Rellenar barra definitivo
+        //Rellenar barra definitivo
         const damageToEnemy = result.damage || 0;
         let damageToPlayer = 0;
         if (typeof result.playerDamage === 'number') {
@@ -210,7 +220,7 @@ export class BattleComponent implements OnInit {
     });
   }
 
-  // Nueva función para incrementar la barra
+  //Nueva función para incrementar la barra
   incrementUltimate(damageToEnemy: number, damageToPlayer: number) {
     let progress = this.ultimateProgress + damageToEnemy + (damageToPlayer * 0.1);
     if (progress > 100) progress = 100;
@@ -218,7 +228,7 @@ export class BattleComponent implements OnInit {
     this.ultimateProgress = progress;
     this.ultimateReady = this.ultimateProgress >= 100;
 
-    // Guarda el valor en el backend
+    //Guarda el valor en el backend
     this.http.post('http://localhost:3000/api/active-missions/update-definitivo', {
       playerId: this.player.ID,
       missionId: this.missionId,
@@ -226,7 +236,7 @@ export class BattleComponent implements OnInit {
     }).subscribe();
   }
 
-  // Gestiona la experiencia y nivel
+  //Gestiona la experiencia y nivel
   handleExperience(expGained: number) {
     if (!this.player) return;
     let exp = this.player.Experience || 0;
@@ -254,7 +264,7 @@ export class BattleComponent implements OnInit {
     this.player.Defense = defense;
     this.player.HP = maxHP;
 
-    // Actualiza los datos base del jugador
+    //Actualiza los datos base del jugador
     this.http.post('http://localhost:3000/api/players/update-exp', {
       playerId: this.player.ID,
       experience: exp,
@@ -343,7 +353,7 @@ export class BattleComponent implements OnInit {
     this.canAttack = false;
     this.showIdle = false;
     this.showPlayerDamaged = false;
-    this.showSkill = true; // Mostrar solo el video de habilidad
+    this.showSkill = true;
 
     this.http.post<any>('http://localhost:3000/api/battle/use-ability', {
       playerId: this.player.ID,
@@ -362,7 +372,7 @@ export class BattleComponent implements OnInit {
     });
   }
 
-  // Cuando termina la animación de habilidad
+  //Cuando termina la animación de habilidad
   onSkillVideoEnded(video: HTMLVideoElement): void {
     video.hidden = true;
     this.showSkill = false;
@@ -386,11 +396,11 @@ export class BattleComponent implements OnInit {
         if (result.enemyHP === 0 && result.experience) {
           this.handleExperience(result.experience);
         }
-        // Reinicia la barra de definitivo
+        //Reinicia la barra de definitivo
         this.ultimateProgress = 0;
         this.ultimateReady = false;
 
-        // Guarda el valor reiniciado en el backend
+        //Guarda el valor reiniciado en el backend
         this.http.post('http://localhost:3000/api/active-missions/update-definitivo', {
           playerId: this.player.ID,
           missionId: this.missionId,
@@ -422,5 +432,43 @@ export class BattleComponent implements OnInit {
       missionId: this.missionId,
       enemySuperAttack: this.enemyUltimateProgress
     }).subscribe();
+  }
+
+  useUniqueAbility() {
+    if (!this.canAttack || !this.uniqueAbility) return;
+    //Cooldown check
+    if (this.cooldowns[this.uniqueAbility.ID] && this.cooldowns[this.uniqueAbility.ID] > this.turn) return;
+
+    this.canAttack = false;
+    this.showIdle = false;
+    this.showPlayerDamaged = false;
+    this.showSkill = true;
+
+    this.http.post<any>('http://localhost:3000/api/battle/use-ability', {
+      playerId: this.player.ID,
+      missionId: this.missionId,
+      abilityId: this.uniqueAbility.ID,
+      isUnique: true
+    }).subscribe({
+      next: (result) => {
+        this.updateEnemyHP(result.enemyHP);
+        if (result.cooldowns) this.cooldowns = result.cooldowns;
+        if (result.enemyHP === 0 && result.experience) {
+          this.handleExperience(result.experience);
+        }
+        const damageToEnemy = result.damage || 0;
+        this.incrementEnemyUltimate(damageToEnemy);
+      }
+    });
+  }
+
+  //Para abilities normales
+  getAbilityCooldown(ability: any): number {
+    return this.cooldowns[`a_${ability.ID}`] || 0;
+  }
+
+  //Para uniqueAbility
+  getUniqueAbilityCooldown(): number {
+    return this.cooldowns[`u_${this.uniqueAbility.ID}`] || 0;
   }
 }

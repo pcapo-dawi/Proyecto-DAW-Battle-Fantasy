@@ -19,6 +19,7 @@ import { MatIconModule } from '@angular/material/icon'
 export class ProfileComponent implements OnInit {
   player: any;
   abilities: any[] = [];
+  uniqueAbility: any = null;
 
   constructor(
     private playersService: PlayersService,
@@ -36,6 +37,14 @@ export class ProfileComponent implements OnInit {
             this.abilities = abilities;
           }
         });
+        // Cargar UniqueAbility
+        if (this.player.ID_UniqueAbility) {
+          this.http.get<any>(`http://localhost:3000/api/unique-abilities/${this.player.ID_UniqueAbility}`).subscribe({
+            next: (uniqueAbility) => {
+              this.uniqueAbility = uniqueAbility;
+            }
+          });
+        }
       }
     });
   }

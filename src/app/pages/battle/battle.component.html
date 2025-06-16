@@ -134,10 +134,10 @@
                                     <p>Damage: {{ ability.Damage }}</p>
                                     <p>Cooldown: {{ ability.Cooldown }} turns</p>
                                 </mat-card-content>
-                                <mat-card-actions>
+                                <mat-card-actions align="end">
                                     <button (click)="useAbility(ability)" [disabled]="
     player.Level < ability.UnlockLvl ||
-    (cooldowns[ability.ID] && cooldowns[ability.ID] > turn) ||
+    (getAbilityCooldown(ability) && getAbilityCooldown(ability) > turn) ||
     !canAttack ||
     !showIdle ||
     showPlayerDamaged ||
@@ -145,10 +145,48 @@
     showEnemyAttack
   ">
                                         Use Skill
-                                        <span *ngIf="cooldowns[ability.ID] && cooldowns[ability.ID] > turn">
-                                        </span>
                                     </button>
                                 </mat-card-actions>
+                            </mat-card>
+                        </div>
+                        <div class="p-battle__container__UI__player-abilities__skills__grid__unique-ability">
+                            <mat-card
+                                class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details"
+                                tabindex="0">
+                                <mat-card-header
+                                    class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details__header">
+                                    <div mat-card-avatar
+                                        class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details__header__image">
+                                    </div>
+                                    <div
+                                        class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details__header__name">
+                                        <h3>{{uniqueAbility.Name}}</h3>
+                                    </div>
+                                </mat-card-header>
+                                <mat-card-content
+                                    class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details__content">
+                                    <p
+                                        class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details--description">
+                                        {{uniqueAbility.Description}}</p>
+                                    <p>Damage: {{ uniqueAbility.Damage }}</p>
+                                    <p
+                                        class="p-battle__container__UI__player-abilities__skills__grid__unique-ability--cooldown">
+                                        Cooldown:
+                                        {{uniqueAbility.Cooldown}} turns</p>
+                                    <mat-card-actions align="end"
+                                        class="p-battle__container__UI__player-abilities__skills__grid__unique-ability__details__content--actions">
+                                        <button (click)="useUniqueAbility()" [disabled]="
+    (getUniqueAbilityCooldown() && getUniqueAbilityCooldown() > turn) ||
+    !canAttack ||
+    !showIdle ||
+    showPlayerDamaged ||
+    showSkill ||
+    showEnemyAttack
+  ">
+                                            Use Skill
+                                        </button>
+                                    </mat-card-actions>
+                                </mat-card-content>
                             </mat-card>
                         </div>
                     </div>
@@ -156,4 +194,3 @@
             </div>
         </div>
     </div>
-</div>

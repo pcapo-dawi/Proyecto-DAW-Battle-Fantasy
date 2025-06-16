@@ -143,13 +143,16 @@
                         grid-template-columns: repeat(2, 1fr);
                         row-gap: .3125rem;
                         column-gap: .3125rem;
+                        grid-auto-rows: 1fr;
 
                         &__details {
                             background-color: aquamarine;
+                            height: 100%;
                         }
 
                         &__unique-ability__details {
                             background-color: aqua;
+                            height: 100%;
                         }
                     }
                 }
