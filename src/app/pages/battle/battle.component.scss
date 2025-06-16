@@ -15,7 +15,6 @@
             }
 
             &--enemy-ultimate {
-                //background: rgb(217, 233, 0);
                 height: 10px;
             }
 
@@ -143,7 +142,6 @@
                         grid-template-columns: repeat(2, 1fr);
                         row-gap: .3125rem;
                         column-gap: .3125rem;
-                        grid-auto-rows: 1fr;
 
                         &__details {
                             background-color: aquamarine;

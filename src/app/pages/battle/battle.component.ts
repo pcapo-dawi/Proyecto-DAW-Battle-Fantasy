@@ -56,7 +56,7 @@ export class BattleComponent implements OnInit {
         //Cargar habilidades del Job del jugador
         this.http.get<any[]>(`http://localhost:3000/api/abilities/by-job/${this.player.ID_Job}`).subscribe({
           next: (abilities) => {
-            this.abilities = abilities;
+            this.abilities = abilities.filter(a => this.player.Level >= a.UnlockLvl);
           }
         });
 
