@@ -11,10 +11,14 @@
                 </div>
             </div>
             <div class="p-battle__container__top--enemy-ultimate">
+                <div class="enemy-ultimate-bar" [style.width.%]="enemyUltimateProgress"
+                    style="background: orange; height: 10px;">
+                </div>
             </div>
             <div class="p-battle__container__top__battle-screen">
                 <div class="p-battle__container__top__battle-screen--enemy">
-                    <video *ngIf="showEnemyIdle && !showEnemyDamaged && !showEnemyAttack && enemyCurrentHP > 0"
+                    <video
+                        *ngIf="showEnemyIdle && !showEnemyDamaged && !showEnemyAttack && enemyCurrentHP > 0 && !enemyUltimateReady"
                         src="\assets\animations\enemies\idle\{{ missionData?.enemyId}}.webm" type="video/webm" autoplay
                         muted loop id="player-idle-video">Your browser doesn't suport webm
                         videos</video>
@@ -33,6 +37,16 @@
                         muted (ended)="onEnemyDeadEnded(deadEnemyVideo)">
                         Your browser doesn't support webm videos
                     </video>
+                    <video
+                        *ngIf="showEnemyIdle && !showEnemyDamaged && !showEnemyAttack && enemyCurrentHP > 0 && enemyUltimateReady"
+                        src="\assets\animations\enemies\skills\{{ missionData?.enemyId}}.webm" type="video/webm"
+                        autoplay muted loop id="player-idle-video">Your browser doesn't suport webm
+                        videos</video>
+                    <video *ngIf="showEnemySuperAttack && enemyCurrentHP > 0" #superAttackEnemyVideo
+                        src="\assets\animations\enemies\especial\{{ missionData?.enemyId}}.webm" type="video/webm"
+                        autoplay muted (ended)="onEnemyAttackEnded(superAttackEnemyVideo)">Your
+                        browser doesn't suport webm
+                        videos</video>
                 </div>
                 <div class="p-battle__container__top__battle-screen--player">
                     <video *ngIf="showIdle && !showPlayerDamaged && !showSkill && !ultimateReady && !showDefinitivo"
