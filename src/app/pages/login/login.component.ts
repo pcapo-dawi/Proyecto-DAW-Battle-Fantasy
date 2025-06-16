@@ -16,6 +16,7 @@ export class LoginComponent {
 
   public email!: string;
   public password!: string;
+  public errorMessage: string = '';
 
   constructor(
     public playersService: PlayersService,
@@ -25,10 +26,29 @@ export class LoginComponent {
   }
 
   login() {
+    this.errorMessage = '';
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!this.email || !emailPattern.test(this.email)) {
+      this.errorMessage = 'Please enter a valid email address.';
+      return;
+    }
+    if (!this.password) {
+      this.errorMessage = 'Please enter your password.';
+      return;
+    }
     const user = { email: this.email, password: this.password };
-    this.playersService.login(user).subscribe((data) => {
-      this.playersService.setToken(data.token);
-      this.router.navigate(['/']);
+    this.playersService.login(user).subscribe({
+      next: (data) => {
+        this.playersService.setToken(data.token);
+        this.router.navigate(['/']);
+      },
+      error: (err) => {
+        if (err.status === 401 || err.status === 404) {
+          this.errorMessage = 'Incorrect email or password, or user does not exist.';
+        } else {
+          this.errorMessage = 'An error occurred. Please try again.';
+        }
+      }
     });
   }
 

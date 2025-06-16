@@ -27,6 +27,11 @@ export class RegisterComponent {
   ) { }
 
   register() {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!this.email || !emailPattern.test(this.email)) {
+      alert('Please enter a valid email address.');
+      return;
+    }
     const user = { name: this.username, email: this.email, password: this.password };
     this.playersService.register(user).subscribe((data) => {
       console.log('Respuesta del backend:', data);
