@@ -618,3 +618,13 @@ app.get('/api/unique-abilities/:id', async (req, res) => {
     res.status(404).json({ error: 'UniqueAbility not found' });
   }
 });
+
+app.get('/api/definitivo/:id', async (req, res) => {
+  const id = req.params.id;
+  const [rows] = await db.query('SELECT * FROM Definitivo WHERE ID = ?', [id]);
+  if (rows.length > 0) {
+    res.json(rows[0]);
+  } else {
+    res.status(404).json({ error: 'Definitivo not found' });
+  }
+});

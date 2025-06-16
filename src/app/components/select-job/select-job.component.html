@@ -12,6 +12,26 @@
     </div>
     <mat-card-content class="c-jobs-listing__content">
         <p class="c-jobs-listing__content--text">{{job.Description}}</p>
+        <h3>Stats:</h3>
+        <p class="c-jobs-listing__content--text">Attack: {{job.BaseAttack}}</p>
+        <p class="c-jobs-listing__content--text">Defense: {{job.BaseDefense}}</p>
+        <div class="c-jobs-listing__abilities">
+            <h3>Abilities:</h3>
+            <ul>
+                <li *ngFor="let ability of abilities">
+                    <strong>{{ ability.Name }}</strong> - {{ ability.Description }}
+                    <span *ngIf="ability.UnlockLvl > 1">(Unlocks at level {{ ability.UnlockLvl }})</span>
+                </li>
+            </ul>
+        </div>
+        <div class="c-jobs-listing__definitivo" *ngIf="definitivo">
+            <h3>Definitivo:</h3>
+            <ul>
+                <li>
+                    <strong>{{ definitivo.Name }}</strong>
+                </li>
+            </ul>
+        </div>
     </mat-card-content>
     <mat-card-actions align="end" class="c-jobs-listing__actions">
         <button mat-button class="c-jobs-listing__actions--button"
