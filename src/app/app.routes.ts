@@ -45,67 +45,67 @@ export const routes: Routes = [
         path: 'select-job',
         component: SelectJobListingComponent,
         title: 'Select Job',
-        canActivate: [authGuard, jobSelectGuard]
+        canActivate: [authGuard]
     },
     {
         path: '',
         component: HomeComponent,
         title: 'Home',
-        canActivate: [authGuard]
+        canActivate: [authGuard, jobSelectGuard]
     },
     {
         path: '',
         component: HomeHeaderComponent,
         outlet: 'header',
-        canActivate: [authGuard]
+        canActivate: [authGuard, jobSelectGuard]
     },
     {
         path: 'profile',
         component: ProfileComponent,
         title: 'Profile',
-        canActivate: [authGuard]
+        canActivate: [authGuard, jobSelectGuard]
     },
     {
         path: 'profile',
         component: ProfileHeaderComponent,
         outlet: 'header',
-        canActivate: [authGuard]
+        canActivate: [authGuard, jobSelectGuard]
     },
     {
         path: 'missions',
         component: MissionsListingComponent,
         title: 'Missions',
-        canActivate: [authGuard]
+        canActivate: [authGuard, jobSelectGuard]
     },
     {
         path: 'missions',
         component: MissionsHeaderComponent,
         outlet: 'header',
-        canActivate: [authGuard]
+        canActivate: [authGuard, jobSelectGuard]
     },
     {
         path: 'raids',
         component: RaidsListingComponent,
         title: 'Raids',
-        canActivate: [authGuard]
+        canActivate: [authGuard, jobSelectGuard]
     },
     {
         path: 'raids',
         component: RaidsHeaderComponent,
         outlet: 'header',
-        canActivate: [authGuard]
+        canActivate: [authGuard, jobSelectGuard]
     },
     {
         path: 'battle/:id',
         component: BattleComponent,
         title: 'Battle',
-        canActivate: [authGuard]
+        canActivate: [authGuard, jobSelectGuard]
     },
     {
         path: 'battle/:id',
         component: BattleHeaderComponent,
         outlet: 'header',
-        canActivate: [authGuard]
+        canActivate: [authGuard, jobSelectGuard]
     },
     {
         path: 'copyright',

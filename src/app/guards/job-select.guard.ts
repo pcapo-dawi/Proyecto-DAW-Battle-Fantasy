@@ -9,16 +9,21 @@ export const jobSelectGuard: CanActivateFn = async (route, state) => {
 
     try {
         const data = await firstValueFrom(playersService.getPlayerLogged());
-        // Si el usuario YA tiene Job y Aspect, redirige a home
+        //Si el usuario YA tiene Job y Aspect, permite el acceso
         if (data.player.ID_Job && data.player.ID_JobAspect) {
-            router.navigate(['/home']);
-            return false;
+            return true;
         }
-        // Si NO tiene Job o Aspect, permite el acceso
-        return true;
-    } catch (e) {
-        // Si hay error (no autenticado), redirige a login
-        router.navigate(['/login']);
+        //Si NO tiene Job o Aspect, redirige a select-job
+        router.navigate(['/select-job']);
+        return false;
+    } catch (e: any) {
+        //Si el error es 401 (no autenticado), redirige a login
+        if (e.status === 401) {
+            router.navigate(['/login']);
+        } else {
+            //Para cualquier otro error, redirige a select-job
+            router.navigate(['/select-job']);
+        }
         return false;
     }
 };
