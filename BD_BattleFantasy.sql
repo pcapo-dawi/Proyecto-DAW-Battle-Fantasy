@@ -228,7 +228,6 @@ CREATE TABLE IF NOT EXISTS `players` (
   KEY `fk_player_job` (`ID_Job`),
   KEY `fk_player_unique` (`ID_UniqueAbility`),
   KEY `fk_player_mission` (`ID_Mission`),
-  KEY `fk_player_raid` (`ID_Raid`),
   KEY `fk_player_aspect` (`ID_JobAspect`),
   CONSTRAINT `fk_player_aspect` FOREIGN KEY (`ID_JobAspect`) REFERENCES `jobaspects` (`ID`),
   CONSTRAINT `fk_player_job` FOREIGN KEY (`ID_Job`) REFERENCES `jobs` (`ID`),
