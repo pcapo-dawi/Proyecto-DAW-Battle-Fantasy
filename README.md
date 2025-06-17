@@ -10,9 +10,24 @@ Juego sencillo inspirado en los Final Fantasy clásicos, centrado exclusivamente
 **Front-end:** Se utilizará Angular con SASS.
 
 **Back-end:** Se utilizará Node.js con Socket.io y para la persistencia de datos se utilizará MySQL.
+
 # BattleFantasy
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.8.
+
+## Once project download
+
+To work properly whitout any error install Node.js: https://nodejs.org and run:
+
+first
+```bash
+npm install -g @angular/cli
+```
+
+second
+```bash
+npm install
+```
 
 ## Development server
 
