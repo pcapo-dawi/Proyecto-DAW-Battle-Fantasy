@@ -1,15 +1,15 @@
 # Proyecto-DAW-Battle-Fantasy
 
 ## Objetivo
-Desarrollar un juego de navegador de batallas por turnos, donde los usuarios deberán registrarse, elegir la clase/trabajo al que quieren pertenecer, que se diferenciarán entre ellas por las habilidades exclusivas que tienen cada una de ellas, y podrán seleccionar misiones donde combatirán contra la máquina y recibir ayuda de otros usuarios. Al ser un juego de navegador, los datos de la partida quedarán guardados para poder seguir jugando en otro momento y desde casi cualquier otro dispositivo.
+Desarrollar un juego de navegador de batallas por turnos, donde los usuarios deberán registrarse, elegir el trabajo al que quieren pertenecer, que se diferenciarán entre ellas por las habilidades exclusivas que tienen cada una de ellas, y podrán seleccionar misiones donde combatirán contra la máquina. Al ser un juego de navegador, los datos de la partida quedarán guardados para poder seguir jugando en otro momento y desde casi cualquier otro dispositivo.
 
 ## Temática
 Juego sencillo inspirado en los Final Fantasy clásicos, centrado exclusivamente en las batallas para poder pasar el tiempo muerto de una manera entretenida.
 
 ## Tecnologías utilizadas
-**Front-end:** Se utilizará Angular con SASS y quizás se utilice Tailwind o Bootstrap.
+**Front-end:** Se utilizará Angular con SASS.
 
-**Back-end:** Se utilizará Node.js con Socket.io y para la persistencia de datos se utilizará MySQL con posibilidad de decantarse por MongoDB.
+**Back-end:** Se utilizará Node.js con Socket.io y para la persistencia de datos se utilizará MySQL.
 # BattleFantasy
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.8.
@@ -19,7 +19,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 To start a local development server, run:
 
 ```bash
-ng serve
+ng serve -o
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
@@ -45,6 +45,9 @@ ng server/server.js
 ## Run the backend locally to work with other devices
 
 Is nedeed to change localhost:3000 to ip:3000
+
+## Important
+For the game to run and work correctly you need the corresponding DB
 
 ## Code scaffolding
 
