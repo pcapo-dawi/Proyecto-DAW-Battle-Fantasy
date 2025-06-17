@@ -54,7 +54,7 @@ Make sure to disable firewall and navigate to the ip.
 To start the backend server navigate to the backend folder and run:
 
 ```bash
-ng server/server.js
+node server/server.js
 ```
 
 ## Run the backend locally to work with other devices
