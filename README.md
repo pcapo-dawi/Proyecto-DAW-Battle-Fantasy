@@ -15,7 +15,7 @@ Juego sencillo inspirado en los Final Fantasy clásicos, centrado exclusivamente
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.8.
 
-## Once project download
+## Once project downloaded
 
 To work properly whitout any error install Node.js: https://nodejs.org and run:
 
