@@ -32,7 +32,7 @@ app.post('/api/login', async (req, res) => {
     const match = await bcrypt.compare(password, user.Password);
     if (match) {
       const token = jwt.sign({ id: user.ID }, 'secreto_super_seguro');
-      res.json({ success: true, player: user, token }); //<-- devuelve el token aquí
+      res.json({ success: true, player: user, token });
     } else {
       res.status(401).json({ success: false, message: 'Credenciales incorrectas' });
     }
@@ -82,7 +82,6 @@ app.post('/api/players/:id/assign-job', async (req, res) => {
         [uniqueAbilityId, playerId]
       );
     } else {
-      //Si no hay UniqueAbilities para ese Job, puedes dejarlo en null o manejarlo como prefieras
       await db.query(
         'UPDATE Players SET ID_UniqueAbility = NULL WHERE ID = ?',
         [playerId]
@@ -154,7 +153,7 @@ app.get('/api/jobs-with-aspects', async (req, res) => {
 //Endpoint para obtener jobs con solo los IDs de sus aspectos
 app.get('/api/jobs-aspect-ids', async (req, res) => {
   try {
-    const jobs = await db.getJobsWithAspectIds(); //Esta función debe estar en db.js
+    const jobs = await db.getJobsWithAspectIds();
     res.json(jobs);
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error al obtener jobs con aspectIds', error: error.message });
